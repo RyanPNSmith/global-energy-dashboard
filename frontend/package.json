@@ -1,0 +1,11 @@
+{
+  "name": "frontend",
+  "version": "1.0.0",
+  "private": true,
+  "main": "src/App.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "echo \"No start script defined\"",
+    "test": "echo \"No tests yet\""
+  }
+}
