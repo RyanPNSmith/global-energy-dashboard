@@ -6,5 +6,9 @@
   "scripts": {
     "start": "node src/app.js",
     "test": "echo \"No tests yet\""
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "pg": "^8.11.5"
   }
 }
