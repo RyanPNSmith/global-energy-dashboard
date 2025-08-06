@@ -1,16 +1,25 @@
+import { Inter } from 'next/font/google'
 import './globals.css'
 
+const inter = Inter({ subsets: ['latin'] })
+
 export const metadata = {
-  title: 'Global Energy Dashboard',
-  description: 'A comprehensive dashboard for global energy data',
+  title: 'Power Plant Dashboard',
+  description: 'Global power plant data visualization dashboard',
 }
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className="min-h-screen bg-gray-50">
-        {children}
-      </body>
+      <head>
+        <link
+          rel="stylesheet"
+          href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+          crossOrigin=""
+        />
+      </head>
+      <body className={inter.className}>{children}</body>
     </html>
   )
 } 

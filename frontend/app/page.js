@@ -1,87 +1,205 @@
-export default function Home() {
+"use client"
+
+import { useState } from 'react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card"
+import { BarChart3, Globe, LineChart, PieChart, Settings, Users, Home, Info } from 'lucide-react'
+
+export default function Dashboard() {
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+
   return (
-    <main className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      <div className="container mx-auto px-4 py-8">
-        <header className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Global Energy Dashboard
-          </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Comprehensive insights into global energy consumption, production, and sustainability metrics
-          </p>
-        </header>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {/* Energy Consumption Card */}
-          <div className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow">
-            <div className="flex items-center mb-4">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 ml-3">Energy Consumption</h3>
-            </div>
-            <p className="text-3xl font-bold text-blue-600">2.4 TWh</p>
-            <p className="text-sm text-gray-500 mt-2">+12% from last month</p>
+    <div className="flex min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      {/* Sidebar */}
+      <div className={`dashboard-sidebar ${sidebarCollapsed ? 'w-16' : 'w-64'} h-screen fixed left-0 top-0 z-30 transition-all duration-300`}>
+        <div className="p-4 flex flex-col h-full">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className={`font-bold text-white ${sidebarCollapsed ? 'hidden' : 'block'}`}>QUANTUM</h2>
+            <button 
+              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+              className="text-white hover:bg-white/10 p-2 rounded-full"
+            >
+              {sidebarCollapsed ? '→' : '←'}
+            </button>
           </div>
-
-          {/* Renewable Energy Card */}
-          <div className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow">
-            <div className="flex items-center mb-4">
-              <div className="p-2 bg-green-100 rounded-lg">
-                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 ml-3">Renewable Energy</h3>
-            </div>
-            <p className="text-3xl font-bold text-green-600">34%</p>
-            <p className="text-sm text-gray-500 mt-2">+5% from last year</p>
-          </div>
-
-          {/* Carbon Emissions Card */}
-          <div className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow">
-            <div className="flex items-center mb-4">
-              <div className="p-2 bg-red-100 rounded-lg">
-                <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 ml-3">Carbon Emissions</h3>
-            </div>
-            <p className="text-3xl font-bold text-red-600">1.2 Gt</p>
-            <p className="text-sm text-gray-500 mt-2">-8% from last year</p>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Recent Activity</h2>
-          <div className="space-y-4">
-            <div className="flex items-center p-4 bg-gray-50 rounded-lg">
-              <div className="w-3 h-3 bg-green-500 rounded-full mr-4"></div>
-              <div className="flex-1">
-                <p className="font-medium text-gray-900">Solar energy production increased by 15%</p>
-                <p className="text-sm text-gray-500">2 hours ago</p>
-              </div>
-            </div>
-            <div className="flex items-center p-4 bg-gray-50 rounded-lg">
-              <div className="w-3 h-3 bg-blue-500 rounded-full mr-4"></div>
-              <div className="flex-1">
-                <p className="font-medium text-gray-900">New wind farm connected to the grid</p>
-                <p className="text-sm text-gray-500">5 hours ago</p>
-              </div>
-            </div>
-            <div className="flex items-center p-4 bg-gray-50 rounded-lg">
-              <div className="w-3 h-3 bg-yellow-500 rounded-full mr-4"></div>
-              <div className="flex-1">
-                <p className="font-medium text-gray-900">Energy storage capacity expanded</p>
-                <p className="text-sm text-gray-500">1 day ago</p>
-              </div>
+          
+          <nav className="flex-1">
+            <ul className="space-y-2">
+              <li>
+                <a href="#" className="flex items-center p-3 rounded-lg hover:bg-white/10 text-white">
+                  <Home className="h-5 w-5" />
+                  {!sidebarCollapsed && <span className="ml-3">Dashboard</span>}
+                </a>
+              </li>
+              <li>
+                <a href="#overview" className="flex items-center p-3 rounded-lg hover:bg-white/10 text-white/80">
+                  <Globe className="h-5 w-5" />
+                  {!sidebarCollapsed && <span className="ml-3">Overview</span>}
+                </a>
+              </li>
+              <li>
+                <a href="#analytics" className="flex items-center p-3 rounded-lg hover:bg-white/10 text-white/80">
+                  <BarChart3 className="h-5 w-5" />
+                  {!sidebarCollapsed && <span className="ml-3">Analytics</span>}
+                </a>
+              </li>
+              <li>
+                <a href="#reports" className="flex items-center p-3 rounded-lg hover:bg-white/10 text-white/80">
+                  <PieChart className="h-5 w-5" />
+                  {!sidebarCollapsed && <span className="ml-3">Reports</span>}
+                </a>
+              </li>
+              <li>
+                <a href="#trends" className="flex items-center p-3 rounded-lg hover:bg-white/10 text-white/80">
+                  <LineChart className="h-5 w-5" />
+                  {!sidebarCollapsed && <span className="ml-3">Trends</span>}
+                </a>
+              </li>
+              <li>
+                <a href="#users" className="flex items-center p-3 rounded-lg hover:bg-white/10 text-white/80">
+                  <Users className="h-5 w-5" />
+                  {!sidebarCollapsed && <span className="ml-3">Users</span>}
+                </a>
+              </li>
+              <li>
+                <a href="#settings" className="flex items-center p-3 rounded-lg hover:bg-white/10 text-white/80">
+                  <Settings className="h-5 w-5" />
+                  {!sidebarCollapsed && <span className="ml-3">Settings</span>}
+                </a>
+              </li>
+              <li>
+                <a href="#about" className="flex items-center p-3 rounded-lg hover:bg-white/10 text-white/80">
+                  <Info className="h-5 w-5" />
+                  {!sidebarCollapsed && <span className="ml-3">About</span>}
+                </a>
+              </li>
+            </ul>
+          </nav>
+          
+          <div className={`mt-auto ${sidebarCollapsed ? 'hidden' : 'block'}`}>
+            <div className="p-3 text-xs text-white/60">
+              <p>© 2025 QUANTUM Capital</p>
+              <p>Dashboard v1.0</p>
             </div>
           </div>
         </div>
       </div>
-    </main>
+      
+      {/* Main content */}
+      <div className={`transition-all duration-300 ${sidebarCollapsed ? 'ml-16' : 'ml-64'} flex-1`}>
+        <header className="dashboard-header sticky top-0 z-20">
+          <div className="container mx-auto py-4 px-6">
+            <div className="flex justify-between items-center">
+              <h1 className="text-2xl font-bold">Dashboard</h1>
+              <div className="flex items-center space-x-4">
+                <div className="bg-white/20 rounded-full px-4 py-1 text-sm">
+                  Last updated: August 6, 2025
+                </div>
+                <div className="h-8 w-8 rounded-full bg-white/20 flex items-center justify-center">
+                  QC
+                </div>
+              </div>
+            </div>
+          </div>
+        </header>
+        
+        <main className="container mx-auto py-8 px-6">
+          <div className="mb-8">
+            <h2 className="text-xl font-semibold text-[#3d4a5d] mb-2">Dashboard Overview</h2>
+            <p className="text-gray-600">Welcome to your dashboard</p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <Card className="dashboard-card">
+              <CardHeader className="bg-[#3d4a5d]/5 border-b">
+                <CardTitle className="text-[#3d4a5d]">Section 1</CardTitle>
+                <CardDescription>
+                  Description for section 1
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="h-40 flex items-center justify-center bg-gray-100 rounded-md">
+                  <p className="text-gray-500">Content placeholder</p>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card className="dashboard-card">
+              <CardHeader className="bg-[#3d4a5d]/5 border-b">
+                <CardTitle className="text-[#3d4a5d]">Section 2</CardTitle>
+                <CardDescription>
+                  Description for section 2
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="h-40 flex items-center justify-center bg-gray-100 rounded-md">
+                  <p className="text-gray-500">Content placeholder</p>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card className="dashboard-card">
+              <CardHeader className="bg-[#3d4a5d]/5 border-b">
+                <CardTitle className="text-[#3d4a5d]">Section 3</CardTitle>
+                <CardDescription>
+                  Description for section 3
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="h-40 flex items-center justify-center bg-gray-100 rounded-md">
+                  <p className="text-gray-500">Content placeholder</p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+          
+          <Card className="dashboard-card mb-6">
+            <CardHeader className="bg-[#3d4a5d]/5 border-b">
+              <CardTitle className="text-[#3d4a5d]">Main Content Area</CardTitle>
+              <CardDescription>
+                This is where your main content would go
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-6">
+              <div className="h-80 flex items-center justify-center bg-gray-100 rounded-md">
+                <p className="text-gray-500">Main content placeholder</p>
+              </div>
+            </CardContent>
+          </Card>
+        </main>
+        
+        <footer className="bg-[#3d4a5d] text-white py-6">
+          <div className="container mx-auto px-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div>
+                <h3 className="text-lg font-semibold mb-4">QUANTUM Capital Group</h3>
+                <p className="text-sm text-white/70">
+                  Providing data-driven insights since 2010.
+                </p>
+              </div>
+              <div>
+                <h4 className="font-medium mb-4">Quick Links</h4>
+                <ul className="space-y-2 text-sm text-white/70">
+                  <li><a href="#" className="hover:text-white">Dashboard</a></li>
+                  <li><a href="#overview" className="hover:text-white">Overview</a></li>
+                  <li><a href="#analytics" className="hover:text-white">Analytics</a></li>
+                  <li><a href="#reports" className="hover:text-white">Reports</a></li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-medium mb-4">Contact</h4>
+                <ul className="space-y-2 text-sm text-white/70">
+                  <li>info@quantumcapital.com</li>
+                  <li>+1 (555) 123-4567</li>
+                  <li>123 Finance Street, New York, NY</li>
+                </ul>
+              </div>
+            </div>
+            <div className="mt-8 pt-6 border-t border-white/20 text-sm text-white/60">
+              <p>© 2025 QUANTUM Capital Group. All rights reserved.</p>
+            </div>
+          </div>
+        </footer>
+      </div>
+    </div>
   )
 } 
