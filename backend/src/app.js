@@ -1,6 +1,7 @@
 const express = require('express');
 const powerPlantRoutes = require('./api/power_plants');
 const countryRoutes = require('./api/countries');
+const validateApiKey = require('./middleware/auth');
 
 const app = express();
 
@@ -10,8 +11,8 @@ app.get('/', (req, res) => {
   res.send('API running');
 });
 
-app.use('/api/power-plants', powerPlantRoutes);
-app.use('/api/countries', countryRoutes);
+app.use('/api/power-plants', validateApiKey, powerPlantRoutes);
+app.use('/api/countries', validateApiKey, countryRoutes);
 
 const PORT = process.env.PORT || 3000;
 if (require.main === module) {
