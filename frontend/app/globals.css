@@ -1,0 +1,80 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+  
+  /* Chart colors */
+  --chart-1: 210 100% 50%;
+  --chart-2: 25 100% 50%;
+  --chart-3: 120 100% 35%;
+  --chart-4: 270 100% 50%;
+  --chart-5: 0 100% 50%;
+  
+  /* Custom theme colors */
+  --primary: 215 25% 30%;
+  --primary-light: 215 25% 40%;
+  --primary-dark: 215 25% 20%;
+  --accent: 215 70% 60%;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(to bottom right, #f8fafc, #eef2f7);
+  min-height: 100vh;
+}
+
+/* Fix for Leaflet map container */
+.leaflet-container {
+  height: 100%;
+  width: 100%;
+  border-radius: 0.5rem;
+}
+
+/* Custom card styling */
+.dashboard-card {
+  transition: all 0.2s ease;
+  border: 1px solid rgba(61, 74, 93, 0.1);
+}
+
+.dashboard-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(61, 74, 93, 0.1), 0 8px 10px -6px rgba(61, 74, 93, 0.1);
+}
+
+/* Custom header styling */
+.dashboard-header {
+  background: linear-gradient(to right, #3d4a5d, #4d5b70);
+  color: white;
+  box-shadow: 0 4px 6px -1px rgba(61, 74, 93, 0.1), 0 2px 4px -1px rgba(61, 74, 93, 0.06);
+}
+
+/* Sidebar styling */
+.dashboard-sidebar {
+  background-color: #3d4a5d;
+  color: white;
+  transition: all 0.3s ease;
+}
+
+/* Custom button styling */
+.custom-button {
+  background: linear-gradient(to right, #3d4a5d, #4d5b70);
+  color: white;
+  transition: all 0.2s ease;
+}
+
+.custom-button:hover {
+  background: linear-gradient(to right, #4d5b70, #5d6b80);
+  transform: translateY(-1px);
+} 
