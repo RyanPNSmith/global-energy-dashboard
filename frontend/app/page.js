@@ -3,9 +3,11 @@
 import { useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card"
 import { BarChart3, Globe, LineChart, PieChart, Settings, Users, Home, Info } from 'lucide-react'
+import PowerPlantMap from '../components/PowerPlantMap'
 
 export default function Dashboard() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [selectedCountries, setSelectedCountries] = useState([])
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
@@ -31,9 +33,9 @@ export default function Dashboard() {
                 </a>
               </li>
               <li>
-                <a href="#overview" className="flex items-center p-3 rounded-lg hover:bg-white/10 text-white/80">
+                <a href="#overview" className="flex items-center p-3 rounded-lg hover:bg-white/10 text-white">
                   <Globe className="h-5 w-5" />
-                  {!sidebarCollapsed && <span className="ml-3">Overview</span>}
+                  {!sidebarCollapsed && <span className="ml-3">Global Map</span>}
                 </a>
               </li>
               <li>
@@ -106,6 +108,18 @@ export default function Dashboard() {
           <div className="mb-8">
             <h2 className="text-xl font-semibold text-[#3d4a5d] mb-2">Dashboard Overview</h2>
             <p className="text-gray-600">Welcome to your dashboard</p>
+            {selectedCountries.length > 0 && (
+              <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <h3 className="text-sm font-medium text-blue-800 mb-2">Selected Countries:</h3>
+                <div className="flex flex-wrap gap-2">
+                  {selectedCountries.map((country, index) => (
+                    <span key={index} className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
+                      {country}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
@@ -154,14 +168,14 @@ export default function Dashboard() {
           
           <Card className="dashboard-card mb-6">
             <CardHeader className="bg-[#3d4a5d]/5 border-b">
-              <CardTitle className="text-[#3d4a5d]">Main Content Area</CardTitle>
+              <CardTitle className="text-[#3d4a5d]">Global Energy Map</CardTitle>
               <CardDescription>
-                This is where your main content would go
+                Interactive map showing power plants worldwide by fuel type and capacity
               </CardDescription>
             </CardHeader>
-            <CardContent className="p-6">
-              <div className="h-80 flex items-center justify-center bg-gray-100 rounded-md">
-                <p className="text-gray-500">Main content placeholder</p>
+            <CardContent className="p-0">
+              <div className="h-96">
+                <PowerPlantMap onCountrySelect={setSelectedCountries} />
               </div>
             </CardContent>
           </Card>
