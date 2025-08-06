@@ -1,15 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { Pool } = require('pg');
-require('dotenv').config();
-
-const pool = new Pool({
-  user: 'postgres',
-  host: 'localhost',
-  database: 'global_power_plants',
-  password: 'MaddieSable2003!',
-  port: 5432,
-});
+const pool = require('../db');
 
 // GET /api/countries - Get all countries with power plant data
 router.get('/', async (req, res) => {
