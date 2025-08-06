@@ -5,7 +5,7 @@ const pool = require('../db');
 // GET /api/power-plants - Get all power plants with optional filtering
 router.get('/', async (req, res) => {
   try {
-    const { country, fuel, limit = 5000, offset = 0 } = req.query;
+    const { country, fuel, limit = 2000, offset = 0, bounds } = req.query;
     
     // Simple query with basic filtering
     let query = `
@@ -23,6 +23,28 @@ router.get('/', async (req, res) => {
     `;
     const params = [];
     let paramCount = 0;
+
+    // Add bounds filtering if provided
+    if (bounds) {
+      const [west, south, east, north] = bounds.split(',').map(Number);
+      if (west !== undefined && south !== undefined && east !== undefined && north !== undefined) {
+        paramCount++;
+        query += ` AND longitude >= $${paramCount}`;
+        params.push(west);
+        
+        paramCount++;
+        query += ` AND longitude <= $${paramCount}`;
+        params.push(east);
+        
+        paramCount++;
+        query += ` AND latitude >= $${paramCount}`;
+        params.push(south);
+        
+        paramCount++;
+        query += ` AND latitude <= $${paramCount}`;
+        params.push(north);
+      }
+    }
 
     // Add filters if provided
     if (country) {
@@ -46,7 +68,9 @@ router.get('/', async (req, res) => {
     res.json({
       success: true,
       data: result.rows,
-      count: result.rows.length
+      count: result.rows.length,
+      total: result.rows.length, // In a real app, you'd get total count separately
+      bounds: bounds || null
     });
   } catch (error) {
     console.error('Error fetching power plants:', error);
