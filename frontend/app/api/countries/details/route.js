@@ -1,9 +1,12 @@
-import { createHash } from 'crypto';
+import { createHash } from 'crypto'
 
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url)
-    const limit = searchParams.get('limit') || '25'
+    const countryName = searchParams.get('countryName')
+    if (!countryName) {
+      return Response.json({ error: 'countryName query parameter is required' }, { status: 400 })
+    }
 
     const backendUrl = process.env.BACKEND_URL || 'http://localhost:3000'
     const apiKey = process.env.BACKEND_API_KEY
@@ -11,20 +14,16 @@ export async function GET(request) {
       throw new Error('BACKEND_API_KEY environment variable is not set')
     }
 
-    const response = await fetch(`${backendUrl}/api/countries/stats/top?limit=${limit}`, {
-      headers: {
-        'X-API-Key': apiKey
-      },
+    const response = await fetch(`${backendUrl}/api/countries/details?countryName=${encodeURIComponent(countryName)}`, {
+      headers: { 'X-API-Key': apiKey },
       cache: 'no-store'
     })
-
     if (!response.ok) {
       throw new Error(`Backend responded with status: ${response.status}`)
     }
 
     const data = await response.json()
-    const etag = createHash('sha1').update(JSON.stringify(data)).digest('hex');
-
+    const etag = createHash('sha1').update(JSON.stringify(data)).digest('hex')
     return Response.json(data.data || data, {
       headers: {
         'Cache-Control': 'no-store',
@@ -32,7 +31,9 @@ export async function GET(request) {
       }
     })
   } catch (error) {
-    console.error('Error fetching top countries:', error)
-    return Response.json([], { status: 500 })
+    console.error('Error fetching country details:', error)
+    return Response.json({ error: 'Failed to fetch country details' }, { status: 500 })
   }
-} 
+}
+
+

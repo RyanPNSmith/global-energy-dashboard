@@ -12,7 +12,7 @@ export default function TopCountriesTable() {
     const fetchCountries = async () => {
       try {
         setLoading(true)
-        const response = await fetch('/api/countries/stats/top?limit=25')
+        const response = await fetch('/api/countries/stats/top?limit=25', { cache: 'no-store' })
         if (!response.ok) {
           throw new Error('Failed to fetch country data')
         }
@@ -32,6 +32,11 @@ export default function TopCountriesTable() {
     }
 
     fetchCountries()
+
+    // Listen for edits to force refresh
+    const onUpdated = () => fetchCountries()
+    window.addEventListener('country-data-updated', onUpdated)
+    return () => window.removeEventListener('country-data-updated', onUpdated)
   }, [])
 
   const sortedCountries = useMemo(() => {

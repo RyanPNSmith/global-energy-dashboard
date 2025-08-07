@@ -25,6 +25,7 @@ const CountryGenerationChart = dynamic(() => import('@/components/CountryGenerat
   )
 })
 import CountrySelector from '@/components/CountrySelector'
+const CountryDataEditor = dynamic(() => import('@/components/CountryDataEditor'), { ssr: false })
 const GlobalFuelPieChart = dynamic(() => import('@/components/GlobalFuelPieChart'), {
   ssr: false,
   loading: () => (
@@ -208,6 +209,18 @@ export default function Dashboard() {
                 <CountrySelector selected={selectedCountries} onChange={setSelectedCountries} max={5} />
               </div>
               <CountryGenerationChart countries={selectedCountries} />
+            </CardContent>
+          </Card>
+
+          <Card className="dashboard-card mb-6">
+            <CardHeader className="bg-[#3d4a5d]/5 border-b">
+              <CardTitle className="text-[#3d4a5d]">Country Data Editor</CardTitle>
+              <CardDescription>
+                Edit capacity and annual generation overrides for a single country
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <CountryDataEditor />
             </CardContent>
           </Card>
         </main>

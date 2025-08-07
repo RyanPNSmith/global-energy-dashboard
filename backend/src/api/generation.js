@@ -2,6 +2,19 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../db');
 
+// Ensure overrides table exists (idempotent)
+async function ensureOverridesTable() {
+  await pool.query(`
+    CREATE SCHEMA IF NOT EXISTS gppd;
+    CREATE TABLE IF NOT EXISTS gppd.country_overrides (
+      country_long TEXT PRIMARY KEY,
+      capacity_mw NUMERIC,
+      generation_overrides JSONB,
+      updated_at TIMESTAMPTZ DEFAULT now()
+    );
+  `);
+}
+
 router.get('/', async (req, res) => {
   try {
     const { countries } = req.query;
@@ -60,6 +73,30 @@ router.get('/', async (req, res) => {
         data[country_long][year] = total_generation ? Number(total_generation) : null;
       }
     });
+
+    // Merge generation overrides if available
+    try {
+      await ensureOverridesTable();
+      const ovRes = await pool.query(
+        `SELECT country_long, generation_overrides FROM gppd.country_overrides WHERE country_long = ANY($1)`,
+        [countryList]
+      );
+      for (const row of ovRes.rows) {
+        const countryName = row.country_long;
+        const overrides = row.generation_overrides || {};
+        if (!data[countryName]) continue;
+        for (const [yearStr, value] of Object.entries(overrides)) {
+          const year = Number(yearStr);
+          const num = Number(value);
+          if (Number.isFinite(year) && Number.isFinite(num)) {
+            data[countryName][year] = num;
+          }
+        }
+      }
+    } catch (e) {
+      // If overrides table missing or other error, proceed without overrides
+      console.warn('Overrides merge skipped:', e.message);
+    }
 
     res.json(data);
   } catch (err) {

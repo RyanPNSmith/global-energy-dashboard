@@ -37,7 +37,7 @@ export default function CountryGenerationChart({ countries }) {
     
     console.log('Fetching generation data for countries:', countries);
     
-    fetch(`/api/generation?${params.toString()}`)
+    fetch(`/api/generation?${params.toString()}`, { cache: 'no-store' })
       .then(res => {
         if (!res.ok) {
           throw new Error(`HTTP error! status: ${res.status}`);
@@ -56,6 +56,23 @@ export default function CountryGenerationChart({ countries }) {
       .finally(() => {
         setLoading(false);
       });
+  }, [countries]);
+
+  // Refresh when editor updates data
+  useEffect(() => {
+    const handler = () => {
+      if (!countries || countries.length === 0) return;
+      const params = new URLSearchParams();
+      params.append('countries', countries.join(','));
+      setLoading(true);
+      fetch(`/api/generation?${params.toString()}`, { cache: 'no-store' })
+        .then(r => r.json())
+        .then(setData)
+        .catch((e) => setError(e.message))
+        .finally(() => setLoading(false));
+    };
+    window.addEventListener('country-data-updated', handler);
+    return () => window.removeEventListener('country-data-updated', handler);
   }, [countries]);
 
   const chartData = useMemo(() => {
