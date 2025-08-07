@@ -3,10 +3,37 @@
 import { useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { BarChart3, Globe, LineChart, PieChart, Settings, Users, Home, Info } from 'lucide-react'
-import PowerPlantMap from '@/components/map/PowerPlantMap'
+import dynamic from 'next/dynamic'
+
+const PowerPlantMap = dynamic(() => import('@/components/map/PowerPlantMap'), {
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center justify-center h-96">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#3d4a5d]"></div>
+      <p className="ml-3 text-gray-600">Loading map...</p>
+    </div>
+  )
+})
 import TopCountriesTable from '@/components/TopCountriesTable'
-import CountryGenerationChart from '@/components/CountryGenerationChart'
+const CountryGenerationChart = dynamic(() => import('@/components/CountryGenerationChart'), {
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center justify-center h-64">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#3d4a5d]"></div>
+      <p className="ml-3 text-gray-600">Loading chart...</p>
+    </div>
+  )
+})
 import CountrySelector from '@/components/CountrySelector'
+const GlobalFuelPieChart = dynamic(() => import('@/components/GlobalFuelPieChart'), {
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center justify-center h-64">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#3d4a5d]"></div>
+      <p className="ml-3 text-gray-600">Loading chart...</p>
+    </div>
+  )
+})
 
 export default function Dashboard() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
@@ -126,49 +153,7 @@ export default function Dashboard() {
             )}
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-            <Card className="dashboard-card">
-              <CardHeader className="bg-[#3d4a5d]/5 border-b">
-                <CardTitle className="text-[#3d4a5d]">Section 1</CardTitle>
-                <CardDescription>
-                  Description for section 1
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="p-6">
-                <div className="h-40 flex items-center justify-center bg-gray-100 rounded-md">
-                  <p className="text-gray-500">Content placeholder</p>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card className="dashboard-card">
-              <CardHeader className="bg-[#3d4a5d]/5 border-b">
-                <CardTitle className="text-[#3d4a5d]">Section 2</CardTitle>
-                <CardDescription>
-                  Description for section 2
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="p-6">
-                <div className="h-40 flex items-center justify-center bg-gray-100 rounded-md">
-                  <p className="text-gray-500">Content placeholder</p>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card className="dashboard-card">
-              <CardHeader className="bg-[#3d4a5d]/5 border-b">
-                <CardTitle className="text-[#3d4a5d]">Section 3</CardTitle>
-                <CardDescription>
-                  Description for section 3
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="p-6">
-                <div className="h-40 flex items-center justify-center bg-gray-100 rounded-md">
-                  <p className="text-gray-500">Content placeholder</p>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+
 
           <Card className="dashboard-card mb-6">
             <CardHeader className="bg-[#3d4a5d]/5 border-b">
@@ -195,6 +180,21 @@ export default function Dashboard() {
               </div>
             </CardContent>
           </Card>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <Card className="dashboard-card">
+              <CardHeader className="bg-[#3d4a5d]/5 border-b">
+                <CardTitle className="text-[#3d4a5d]">Global Primary Fuel Share</CardTitle>
+                <CardDescription>
+                  Share of global generating capacity by primary fuel
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <GlobalFuelPieChart />
+              </CardContent>
+            </Card>
+          </div>
+
 
           <Card className="dashboard-card mb-6">
             <CardHeader className="bg-[#3d4a5d]/5 border-b">
