@@ -1,68 +1,65 @@
 const { Pool } = require('pg');
 const fs = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');
 require('dotenv').config({ path: path.resolve(__dirname, '..', '..', '.env') });
 
-const DEFAULT_DB = process.env.DB_DEFAULT || 'postgres';
-
-const pool = new Pool({
+const dbConfig = {
   user: process.env.DB_USER,
   host: process.env.DB_HOST,
-  database: DEFAULT_DB,
+  database: process.env.DB_NAME,
   password: process.env.DB_PASSWORD,
   port: Number(process.env.DB_PORT) || 5432,
-});
+};
 
 async function setupDatabase() {
+  try {
+    console.log(`Checking if database ${dbConfig.database} exists...`);
+    execSync(`psql -U ${dbConfig.user} -h ${dbConfig.host} -p ${dbConfig.port} -lqt | cut -d \\| -f 1 | grep -qw ${dbConfig.database}`, {
+      env: { ...process.env, PGPASSWORD: dbConfig.password },
+      stdio: 'pipe',
+    });
+    console.log(`Database ${dbConfig.database} already exists.`);
+  } catch (error) {
+    console.log(`Database ${dbConfig.database} does not exist. Creating...`);
+    try {
+      execSync(`createdb -U ${dbConfig.user} -h ${dbConfig.host} -p ${dbConfig.port} -O ${dbConfig.user} ${dbConfig.database}`, {
+        env: { ...process.env, PGPASSWORD: dbConfig.password },
+        stdio: 'inherit',
+      });
+      console.log(`Database ${dbConfig.database} created successfully.`);
+    } catch (dbError) {
+      console.error(`Error creating database: ${dbError}`);
+      process.exit(1);
+    }
+  }
+
+  const pool = new Pool({
+    ...dbConfig,
+    options: `project=gppd&search_path=gppd`,
+  });
+
   const client = await pool.connect();
 
   try {
-    console.log('Setting up database...');
-    await client.query(`CREATE DATABASE ${process.env.DB_NAME}`);
-    console.log(`Database ${process.env.DB_NAME} created successfully`);
-  } catch (err) {
-    if (err.code === '42P04') {
-      console.log('Database already exists, continuing...');
-    } else {
-      console.error('Error creating database:', err);
-      throw err;
-    }
-  } finally {
-    client.release();
-  }
-
-  const dbPool = new Pool({
-    user: process.env.DB_USER,
-    host: process.env.DB_HOST,
-    database: process.env.DB_NAME,
-    password: process.env.DB_PASSWORD,
-    port: Number(process.env.DB_PORT) || 5432,
-  });
-
-  const dbClient = await dbPool.connect();
-
-  try {
     console.log('Creating gppd schema...');
-    await dbClient.query('CREATE SCHEMA IF NOT EXISTS gppd;');
+    await client.query('CREATE SCHEMA IF NOT EXISTS gppd;');
     console.log('GPPD schema created successfully');
 
     console.log('Creating power_plants table in gppd schema...');
     const schemaPath = path.resolve(__dirname, '..', 'schema', 'power_plants.sql');
-    let schemaSQL = fs.readFileSync(schemaPath, 'utf8')
-      .replace(/CREATE TABLE IF NOT EXISTS power_plants/g, 'CREATE TABLE IF NOT EXISTS gppd.power_plants')
-      .replace(/CREATE INDEX IF NOT EXISTS idx_power_plants_/g, 'CREATE INDEX IF NOT EXISTS gppd.idx_power_plants_');
+    const schemaSQL = fs.readFileSync(schemaPath, 'utf8');
 
-    await dbClient.query(schemaSQL);
+    await client.query(schemaSQL);
     console.log('Table schema created successfully in gppd schema');
   } catch (err) {
     console.error('Error creating table schema:', err);
     throw err;
   } finally {
-    dbClient.release();
-    await dbPool.end();
+    client.release();
+    await pool.end();
   }
 
-  await pool.end();
   console.log('Database setup complete!');
 }
 

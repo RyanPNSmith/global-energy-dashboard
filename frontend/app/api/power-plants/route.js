@@ -1,3 +1,5 @@
+import { createHash } from 'crypto';
+
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url)
@@ -32,44 +34,19 @@ export async function GET(request) {
     }
 
     const data = await response.json()
+    const etag = createHash('sha1').update(JSON.stringify(data)).digest('hex');
     
     // Return the data with caching headers
     return Response.json(data.data || data, {
       headers: {
         'Cache-Control': 'public, max-age=300, s-maxage=600', // Cache for 5 minutes client, 10 minutes CDN
-        'ETag': `"${Date.now()}"`, // Simple ETag for caching
+        'ETag': `"${etag}"`, // Simple ETag for caching
       }
     })
 
   } catch (error) {
     console.error('Error fetching power plants:', error)
     
-    // Return sample data as fallback
-    return Response.json([
-      {
-        gppd_idnr: '1',
-        name: 'Three Gorges Dam',
-        country: 'China',
-        country_long: 'China',
-        capacity_mw: 22500,
-        latitude: 30.8243,
-        longitude: 111.0032,
-        primary_fuel: 'Hydro',
-        commissioning_year: 2012,
-        owner: 'China Three Gorges Corporation'
-      },
-      {
-        gppd_idnr: '2',
-        name: 'Itaipu Dam',
-        country: 'Brazil',
-        country_long: 'Brazil',
-        capacity_mw: 14000,
-        latitude: -25.4075,
-        longitude: -54.5882,
-        primary_fuel: 'Hydro',
-        commissioning_year: 1984,
-        owner: 'Itaipu Binacional'
-      }
-    ])
+    return Response.json({ error: 'Failed to fetch power plants' }, { status: 500 });
   }
 } 

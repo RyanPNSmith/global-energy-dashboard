@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '../../../.env') });
 const API_KEY = process.env.API_KEY;
@@ -8,7 +9,6 @@ if (!API_KEY) {
 const validateApiKey = (req, res, next) => {
   const apiKey = req.headers['x-api-key'] || req.headers['authorization'];
   
-  // Check if API key is provided
   if (!apiKey) {
     return res.status(401).json({
       success: false,
@@ -17,21 +17,12 @@ const validateApiKey = (req, res, next) => {
     });
   }
   
-  // Remove 'Bearer ' prefix if present
   const cleanApiKey = apiKey.replace('Bearer ', '');
   
-  // Validate the API key format (16-digit alphanumeric)
-  const apiKeyRegex = /^[A-Za-z0-9]{16}$/;
-  if (!apiKeyRegex.test(cleanApiKey)) {
-    return res.status(401).json({
-      success: false,
-      error: 'Invalid API key format',
-      message: 'API key must be a 16-digit alphanumeric string'
-    });
-  }
-  
-  // Check if API key matches
-  if (cleanApiKey !== API_KEY) {
+  const providedKeyBuffer = Buffer.from(cleanApiKey, 'utf8');
+  const actualKeyBuffer = Buffer.from(API_KEY, 'utf8');
+
+  if (providedKeyBuffer.length !== actualKeyBuffer.length || !crypto.timingSafeEqual(providedKeyBuffer, actualKeyBuffer)) {
     return res.status(401).json({
       success: false,
       error: 'Invalid API key',
@@ -39,7 +30,6 @@ const validateApiKey = (req, res, next) => {
     });
   }
   
-  // API key is valid, proceed to next middleware
   next();
 };
 

@@ -5,10 +5,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { BarChart3, Globe, LineChart, PieChart, Settings, Users, Home, Info } from 'lucide-react'
 import PowerPlantMap from '@/components/map/PowerPlantMap'
 import TopCountriesTable from '@/components/TopCountriesTable'
+import CountryGenerationChart from '@/components/CountryGenerationChart'
+import CountrySelector from '@/components/CountrySelector'
 
 export default function Dashboard() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [selectedCountries, setSelectedCountries] = useState([])
+
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
@@ -188,8 +191,23 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent className="p-0">
               <div className="h-96">
-                <PowerPlantMap onCountrySelect={setSelectedCountries} />
+              <PowerPlantMap />
               </div>
+            </CardContent>
+          </Card>
+
+          <Card className="dashboard-card mb-6">
+            <CardHeader className="bg-[#3d4a5d]/5 border-b">
+              <CardTitle className="text-[#3d4a5d]">Country Electricity Generation</CardTitle>
+              <CardDescription>
+                Annual generation for up to 5 selected countries (2013-2019)
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="mb-4">
+                <CountrySelector selected={selectedCountries} onChange={setSelectedCountries} max={5} />
+              </div>
+              <CountryGenerationChart countries={selectedCountries} />
             </CardContent>
           </Card>
         </main>
