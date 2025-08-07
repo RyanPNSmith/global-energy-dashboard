@@ -7,6 +7,7 @@ import PowerPlantMap from '@/components/map/PowerPlantMap'
 import TopCountriesTable from '@/components/TopCountriesTable'
 import CountryGenerationChart from '@/components/CountryGenerationChart'
 import CountrySelector from '@/components/CountrySelector'
+import GlobalFuelPieChart from '@/components/GlobalFuelPieChart'
 
 export default function Dashboard() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
@@ -195,6 +196,19 @@ export default function Dashboard() {
               </div>
             </CardContent>
           </Card>
+          
+          <Card className="dashboard-card mb-6">
+            <CardHeader className="bg-[#3d4a5d]/5 border-b">
+              <CardTitle className="text-[#3d4a5d]">Global Primary Fuel Share</CardTitle>
+              <CardDescription>
+                Share of global generating capacity by primary fuel
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <GlobalFuelPieChart />
+            </CardContent>
+          </Card>
+
 
           <Card className="dashboard-card mb-6">
             <CardHeader className="bg-[#3d4a5d]/5 border-b">
