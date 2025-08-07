@@ -4,7 +4,7 @@ This API is secured with API key authentication. All API endpoints require a val
 
 ## API Key
 
-**API Key:** `4H2K8D7F5L9Q3X1A`
+**API Key:** `your_actual_api_key_here`
 
 This is a 16-digit alphanumeric key that must be included in all API requests.
 
@@ -13,36 +13,36 @@ This is a 16-digit alphanumeric key that must be included in all API requests.
 ### Method 1: Using x-api-key header
 ```
 GET /api/power-plants
-x-api-key: 4H2K8D7F5L9Q3X1A
+x-api-key: your_actual_api_key_here
 ```
 
 ### Method 2: Using Authorization header
 ```
 GET /api/power-plants
-Authorization: 4H2K8D7F5L9Q3X1A
+Authorization: your_actual_api_key_here
 ```
 
 ### Method 3: Using Bearer token format
 ```
 GET /api/power-plants
-Authorization: Bearer 4H2K8D7F5L9Q3X1A
+Authorization: Bearer your_actual_api_key_here
 ```
 
 ## Example Requests
 
 ### Get all power plants
 ```bash
-curl -H "x-api-key: 4H2K8D7F5L9Q3X1A" http://localhost:3000/api/power-plants
+curl -H "x-api-key: your_actual_api_key_here" http://localhost:3000/api/power-plants
 ```
 
 ### Get power plants by country
 ```bash
-curl -H "x-api-key: 4H2K8D7F5L9Q3X1A" "http://localhost:3000/api/power-plants?country=USA"
+curl -H "x-api-key: your_actual_api_key_here" "http://localhost:3000/api/power-plants?country=USA"
 ```
 
 ### Get all countries
 ```bash
-curl -H "x-api-key: 4H2K8D7F5L9Q3X1A" http://localhost:3000/api/countries
+curl -H "x-api-key: your_actual_api_key_here" http://localhost:3000/api/countries
 ```
 
 ## Error Responses

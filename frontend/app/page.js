@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { BarChart3, Globe, LineChart, PieChart, Settings, Users, Home, Info } from 'lucide-react'
 import PowerPlantMap from '@/components/map/PowerPlantMap'
+import TopCountriesTable from '@/components/TopCountriesTable'
 
 export default function Dashboard() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
@@ -165,7 +166,19 @@ export default function Dashboard() {
               </CardContent>
             </Card>
           </div>
-          
+
+          <Card className="dashboard-card mb-6">
+            <CardHeader className="bg-[#3d4a5d]/5 border-b">
+              <CardTitle className="text-[#3d4a5d]">Top Countries by Generating Capacity</CardTitle>
+              <CardDescription>
+                Top 25 countries ranked by total installed capacity
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <TopCountriesTable />
+            </CardContent>
+          </Card>
+
           <Card className="dashboard-card mb-6">
             <CardHeader className="bg-[#3d4a5d]/5 border-b">
               <CardTitle className="text-[#3d4a5d]">Global Energy Map</CardTitle>

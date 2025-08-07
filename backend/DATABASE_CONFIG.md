@@ -13,7 +13,7 @@ DB_PASSWORD=your_new_password_here
 DB_NAME=global_power_plants
 
 # API Configuration
-API_KEY=4H2K8D7F5L9Q3X1A
+API_KEY=your_actual_api_key_here
 ```
 
 ## Database Connection
@@ -33,7 +33,7 @@ DB_PORT=5432
 DB_USER=postgres
 DB_PASSWORD=YourNewPassword123!
 DB_NAME=global_power_plants
-API_KEY=A1B2C3D4E5F6G7H8
+API_KEY=your_actual_api_key_here
 ```
 
 ## Security Notes
