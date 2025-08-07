@@ -24,14 +24,14 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
+    --background-start-rgb: 31, 41, 55; /* gray-800 */
+    --background-end-rgb: 55, 65, 81;  /* gray-700 */
   }
 }
 
 body {
   color: rgb(var(--foreground-rgb));
-  background: linear-gradient(to bottom right, #f8fafc, #eef2f7);
+  background: linear-gradient(to bottom right, rgb(var(--background-start-rgb)), rgb(var(--background-end-rgb)));
   min-height: 100vh;
 }
 
@@ -77,4 +77,9 @@ body {
 .custom-button:hover {
   background: linear-gradient(to right, #4d5b70, #5d6b80);
   transform: translateY(-1px);
-} 
+}
+
+/* Fallback color when using shadcn's text-muted-foreground */
+.text-muted-foreground {
+  color: rgb(107 114 128); /* Tailwind gray-600 */
+}

@@ -1,3 +1,5 @@
+import { createHash } from 'crypto';
+
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url)
@@ -20,10 +22,12 @@ export async function GET(request) {
     }
 
     const data = await response.json()
+    const etag = createHash('sha1').update(JSON.stringify(data)).digest('hex');
+
     return Response.json(data.data || data, {
       headers: {
         'Cache-Control': 'public, max-age=300, s-maxage=600',
-        'ETag': `"${Date.now()}"`,
+        'ETag': `"${etag}"`,
       }
     })
   } catch (error) {

@@ -2,9 +2,9 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../db');
 
-// GET /api/countries - Get all countries with power plant data
-router.get('/', async (req, res) => {
+router.get('/stats/top', async (req, res) => {
   try {
+    const { limit = 10 } = req.query;
     const result = await pool.query(`
       SELECT 
         country,
@@ -13,30 +13,51 @@ router.get('/', async (req, res) => {
         SUM(capacity_mw) as total_capacity,
         AVG(capacity_mw) as avg_capacity
       FROM gppd.power_plants
+      WHERE capacity_mw IS NOT NULL
       GROUP BY country, country_long
-      ORDER BY total_capacity DESC NULLS LAST
-    `);
+      ORDER BY total_capacity DESC
+      LIMIT $1
+    `, [parseInt(limit)]);
+    res.json({
+      success: true,
+      data: result.rows
+    });
+  } catch (error) {
+    console.error('Error fetching top countries:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to fetch top countries' 
+    });
+  }
+});
 
+router.get('/summary', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT 
+        country,
+        country_long
+      FROM gppd.power_plants
+      GROUP BY country, country_long
+      ORDER BY country_long
+    `);
     res.json({
       success: true,
       data: result.rows,
       count: result.rows.length
     });
   } catch (error) {
-    console.error('Error fetching countries:', error);
+    console.error('Error fetching countries summary:', error);
     res.status(500).json({ 
       success: false, 
-      error: 'Failed to fetch countries' 
+      error: 'Failed to fetch countries summary' 
     });
   }
 });
 
-// GET /api/countries/:country - Get detailed info for a specific country
 router.get('/:country', async (req, res) => {
   try {
     const { country } = req.params;
-    
-    // Get country summary
     const summaryResult = await pool.query(`
       SELECT 
         country,
@@ -57,7 +78,6 @@ router.get('/:country', async (req, res) => {
       });
     }
 
-    // Get fuel breakdown
     const fuelResult = await pool.query(`
       SELECT 
         primary_fuel,
@@ -69,7 +89,6 @@ router.get('/:country', async (req, res) => {
       ORDER BY total_capacity DESC
     `, [country]);
 
-    // Get recent plants (commissioned in last 10 years)
     const recentResult = await pool.query(`
       SELECT 
         name,
@@ -101,11 +120,9 @@ router.get('/:country', async (req, res) => {
   }
 });
 
-// GET /api/countries/:country/fuels - Get fuel breakdown for a country
 router.get('/:country/fuels', async (req, res) => {
   try {
     const { country } = req.params;
-    
     const result = await pool.query(`
       SELECT 
         primary_fuel,
@@ -117,7 +134,6 @@ router.get('/:country/fuels', async (req, res) => {
       GROUP BY primary_fuel
       ORDER BY total_capacity DESC
     `, [country]);
-
     res.json({
       success: true,
       data: result.rows
@@ -127,38 +143,6 @@ router.get('/:country/fuels', async (req, res) => {
     res.status(500).json({ 
       success: false, 
       error: 'Failed to fetch country fuel data' 
-    });
-  }
-});
-
-// GET /api/countries/stats/top - Get top countries by capacity
-router.get('/stats/top', async (req, res) => {
-  try {
-    const { limit = 10 } = req.query;
-    
-    const result = await pool.query(`
-      SELECT 
-        country,
-        country_long,
-        COUNT(*) as plant_count,
-        SUM(capacity_mw) as total_capacity,
-        AVG(capacity_mw) as avg_capacity
-      FROM gppd.power_plants
-      WHERE capacity_mw IS NOT NULL
-      GROUP BY country, country_long
-      ORDER BY total_capacity DESC
-      LIMIT $1
-    `, [parseInt(limit)]);
-
-    res.json({
-      success: true,
-      data: result.rows
-    });
-  } catch (error) {
-    console.error('Error fetching top countries:', error);
-    res.status(500).json({ 
-      success: false, 
-      error: 'Failed to fetch top countries' 
     });
   }
 });
