@@ -48,6 +48,20 @@ const fuelColors = {
   Other: '#808080'
 }
 
+// Explicit list of major fuels we want to show as separate slices
+const MAJOR_FUELS = [
+  'Coal',
+  'Gas',
+  'Oil',
+  'Hydro',
+  'Nuclear',
+  'Wind',
+  'Solar',
+  'Biomass',
+  'Geothermal',
+  'Waste'
+]
+
 export default function GlobalFuelPieChart() {
   const [fuelData, setFuelData] = useState([])
   const [loading, setLoading] = useState(true)
@@ -63,12 +77,21 @@ export default function GlobalFuelPieChart() {
         }
         const json = await res.json()
         const data = json.data || json
-        setFuelData(
-          data.map(d => ({
-            fuel: d.fuel || d.primary_fuel,
-            capacity_mw: Number(d.capacity_mw)
-          }))
-        )
+        // Group non-major fuels into "Other" and sum capacities
+        const grouped = data.reduce((acc, raw) => {
+          const rawFuel = raw.fuel || raw.primary_fuel
+          const normalizedFuel = MAJOR_FUELS.includes(rawFuel) ? rawFuel : 'Other'
+          const capacity = Number(raw.capacity_mw) || 0
+          acc[normalizedFuel] = (acc[normalizedFuel] || 0) + capacity
+          return acc
+        }, {})
+
+        const aggregated = Object.entries(grouped)
+          .map(([fuel, capacity_mw]) => ({ fuel, capacity_mw }))
+          .filter(item => item.capacity_mw > 0)
+          .sort((a, b) => b.capacity_mw - a.capacity_mw)
+
+        setFuelData(aggregated)
       } catch (err) {
         setError(err.message)
       } finally {
@@ -105,6 +128,8 @@ export default function GlobalFuelPieChart() {
   const total = fuelData.reduce((sum, d) => sum + d.capacity_mw, 0)
 
   const options = {
+    responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         position: 'bottom'
@@ -127,7 +152,7 @@ export default function GlobalFuelPieChart() {
   }
 
   return (
-    <div className="h-[300px]">
+    <div className="h-[300px] max-w-[420px] mx-auto">
       <Pie data={chartData} options={options} />
     </div>
   )
