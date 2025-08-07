@@ -1,5 +1,8 @@
 require('dotenv').config({ path: '../.env' });
-const API_KEY = process.env.API_KEY || '4H2K8D7F5L9Q3X1A'; // 16-digit alphanumeric API key
+const API_KEY = process.env.API_KEY;
+if (!API_KEY) {
+  throw new Error('API_KEY environment variable is not set');
+}
 
 const validateApiKey = (req, res, next) => {
   const apiKey = req.headers['x-api-key'] || req.headers['authorization'];

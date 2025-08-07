@@ -82,7 +82,7 @@ User Interface (clustered markers)
 ### Environment Variables
 ```env
 BACKEND_URL=http://localhost:3000
-BACKEND_API_KEY=4H2K8D7F5L9Q3X1A
+BACKEND_API_KEY=your_actual_api_key_here
 ```
 
 ### Performance Settings

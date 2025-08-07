@@ -16,9 +16,14 @@ export async function GET(request) {
     if (bounds) queryParams.append('bounds', bounds)
 
     const backendUrl = process.env.BACKEND_URL || 'http://localhost:3000'
+    const apiKey = process.env.BACKEND_API_KEY
+    if (!apiKey) {
+      throw new Error('BACKEND_API_KEY environment variable is not set')
+    }
+
     const response = await fetch(`${backendUrl}/api/power-plants?${queryParams}`, {
       headers: {
-        'X-API-Key': process.env.BACKEND_API_KEY || '4H2K8D7F5L9Q3X1A'
+        'X-API-Key': apiKey
       }
     })
 

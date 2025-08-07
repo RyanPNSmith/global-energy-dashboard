@@ -47,11 +47,7 @@ export default function PowerPlantMap({ onCountrySelect }) {
       params.append('bounds', `${bounds.getWest()},${bounds.getSouth()},${bounds.getEast()},${bounds.getNorth()}`)
     }
     
-    const response = await fetch(`/api/power-plants?${params}`, {
-      headers: {
-        'x-api-key': '4H2K8D7F5L9Q3X1A'
-      }
-    })
+    const response = await fetch(`/api/power-plants?${params}`)
     
     if (!response.ok) {
       throw new Error(`Failed to fetch power plant data: ${response.status}`)
