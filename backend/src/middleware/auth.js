@@ -1,4 +1,5 @@
-require('dotenv').config({ path: '../.env' });
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '../../../.env') });
 const API_KEY = process.env.API_KEY;
 if (!API_KEY) {
   throw new Error('API_KEY environment variable is not set');
