@@ -116,12 +116,41 @@ export default function CountryDataEditor() {
       showToast({ title: 'No Country Selected', description: 'Please select a country to update.', variant: 'destructive' })
       return
     }
+    // Incorporate pending new year/value into a local map for validation and submission
+    const genForSubmit = { ...generationData }
+    const hasPendingYear = newYear && newYear !== ''
+    const pendingValueIsNumber = newGeneration !== '' && !Number.isNaN(Number(newGeneration))
+    if (hasPendingYear && pendingValueIsNumber) {
+      genForSubmit[newYear] = Number(newGeneration)
+    }
+
+    // Client-side sanity check: generation cannot exceed theoretical max given capacity
+    try {
+      const capMw = capacityMw === '' ? undefined : Number(capacityMw)
+      if (capMw && Number.isFinite(capMw) && capMw > 0) {
+        const maxGwh = capMw * 8.76
+        const violations = Object.entries(genForSubmit)
+          .filter(([, v]) => v !== '' && v !== undefined)
+          .filter(([, v]) => Number(v) > maxGwh)
+          .map(([y, v]) => `${y}: ${v} GWh`)
+        if (violations.length > 0) {
+          showToast({
+            title: 'Generation exceeds capacity limit',
+            description: `These years exceed max ${maxGwh.toFixed(2)} GWh for ${capMw} MW: ${violations.join(', ')}`,
+            variant: 'destructive'
+          })
+          return
+        }
+      }
+    } catch (_) {
+      // ignore client-side validation error
+    }
     setSubmitting(true)
     try {
       const payload = {
         countryName: selectedCountry,
         capacity_mw: capacityMw === '' ? undefined : capacityMw,
-        generation_gwh: Object.fromEntries(Object.entries(generationData).filter(([, v]) => v !== '' && v !== undefined))
+        generation_gwh: Object.fromEntries(Object.entries(genForSubmit).filter(([, v]) => v !== '' && v !== undefined))
       }
 
       const res = await fetch('/api/countries', {
@@ -134,6 +163,16 @@ export default function CountryDataEditor() {
         throw new Error(json?.error || 'Failed to update data')
       }
       showToast({ title: 'Update Successful', description: `${selectedCountry} data updated.` })
+      // If a pending new year was present, reflect it in UI without requiring + button
+      if (hasPendingYear) {
+        if (pendingValueIsNumber) {
+          setGenerationData((prev) => ({ ...prev, [newYear]: Number(newGeneration) }))
+        } else {
+          setGenerationData((prev) => ({ ...prev, [newYear]: undefined }))
+        }
+        setNewYear('')
+        setNewGeneration('')
+      }
       // Trigger listeners to refresh dependent data
       window.dispatchEvent(new CustomEvent('country-data-updated', { detail: { country: selectedCountry, at: Date.now() } }))
       setRefreshToken((t) => t + 1)
@@ -181,7 +220,7 @@ export default function CountryDataEditor() {
                   ))}
                   <div className="flex items-center space-x-2">
                     <input type="number" step="any" value={newGeneration} onChange={(e) => setNewGeneration(e.target.value === '' ? '' : Number(e.target.value))} placeholder="New Generation (GWh)" className="flex-1 border rounded px-3 py-2 bg-white text-gray-900 placeholder-gray-500" min="0" />
-                    <input type="number" value={newYear} onChange={(e) => setNewYear(e.target.value)} placeholder="Year" className="w-24 border rounded px-3 py-2 bg-white text-gray-900 placeholder-gray-500" min="1900" max={new Date().getFullYear() + 5} />
+                    <input type="number" value={newYear} onChange={(e) => setNewYear(e.target.value)} placeholder="Year" className="w-24 border rounded px-3 py-2 bg-white text-gray-900 placeholder-gray-500" min="1900" max={new Date().getFullYear()} />
                     <button type="button" onClick={handleAddYear} className="p-2 rounded bg-gray-900 text-white">
                       <Plus className="h-4 w-4" />
                     </button>

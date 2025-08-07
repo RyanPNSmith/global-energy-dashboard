@@ -305,7 +305,8 @@ router.post('/update-data', async (req, res) => {
       generationOverrides = {};
       for (const [year, value] of Object.entries(generation_gwh)) {
         const y = Number(year);
-        if (!Number.isInteger(y) || y < 1900 || y > 2100) continue;
+        const currentYear = new Date().getFullYear();
+        if (!Number.isInteger(y) || y < 1900 || y > currentYear) continue;
         const v = Number(value);
         if (!Number.isFinite(v) || v < 0) continue;
         // Allow decimals for GWh as well
@@ -314,6 +315,44 @@ router.post('/update-data', async (req, res) => {
     }
 
     await ensureOverridesTable();
+
+    // Determine effective capacity for validation: prefer incoming override, else stored override, else base sum
+    let effectiveCapacityMw = null;
+    try {
+      if (capacityValue != null) {
+        effectiveCapacityMw = Number(capacityValue);
+      } else {
+        const baseRes = await pool.query(
+          `SELECT COALESCE(SUM(capacity_mw), 0) AS base_capacity FROM gppd.power_plants WHERE country_long = $1`,
+          [countryName]
+        );
+        const baseCapacity = Number(baseRes.rows[0]?.base_capacity || 0);
+        const ovRes = await pool.query(
+          `SELECT capacity_mw FROM gppd.country_overrides WHERE country_long = $1`,
+          [countryName]
+        );
+        const storedOverride = ovRes.rows[0]?.capacity_mw;
+        effectiveCapacityMw = storedOverride != null ? Number(storedOverride) : baseCapacity;
+      }
+    } catch (e) {
+      // If validation prefetch fails, continue without validation
+      effectiveCapacityMw = null;
+    }
+
+    // Validate generation vs capacity theoretical maximum (100% capacity factor)
+    if (generationOverrides && effectiveCapacityMw != null && Number.isFinite(effectiveCapacityMw) && effectiveCapacityMw > 0) {
+      const maxAnnualGwh = effectiveCapacityMw * 8.76; // MW * 8760 h / 1000 = GWh
+      const violatingYears = Object.entries(generationOverrides)
+        .filter(([, v]) => Number(v) > maxAnnualGwh)
+        .map(([y, v]) => ({ year: Number(y), value_gwh: Number(v), max_allowed_gwh: maxAnnualGwh }));
+      if (violatingYears.length > 0) {
+        return res.status(422).json({
+          success: false,
+          error: `One or more yearly generation values exceed the theoretical maximum (${maxAnnualGwh.toFixed(2)} GWh) for capacity ${effectiveCapacityMw} MW`,
+          details: { violatingYears }
+        });
+      }
+    }
 
     // Upsert logic
     await pool.query(
