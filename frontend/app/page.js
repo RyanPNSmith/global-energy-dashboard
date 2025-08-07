@@ -1,9 +1,9 @@
 "use client"
 
 import { useState } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { BarChart3, Globe, LineChart, PieChart, Settings, Users, Home, Info } from 'lucide-react'
-import PowerPlantMap from '../components/PowerPlantMap'
+import PowerPlantMap from '@/components/map/PowerPlantMap'
 
 export default function Dashboard() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)

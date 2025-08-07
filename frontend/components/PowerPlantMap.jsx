@@ -118,7 +118,11 @@ export default function PowerPlantMap({ onCountrySelect }) {
   // Simple loading function
   const loadPowerPlants = useCallback(async () => {
     try {
-      const response = await fetch('/api/power-plants?limit=5000')
+      const response = await fetch('/api/power-plants?limit=5000', {
+        headers: {
+          'x-api-key': '4H2K8D7F5L9Q3X1A'
+        }
+      })
       
       if (!response.ok) {
         throw new Error(`Failed to fetch power plant data: ${response.status}`)

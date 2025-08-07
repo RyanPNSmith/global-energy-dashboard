@@ -3,8 +3,9 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url)
     const country = searchParams.get('country')
     const fuel = searchParams.get('fuel')
-    const limit = searchParams.get('limit') || '5000'
+    const limit = searchParams.get('limit') || '2000'
     const offset = searchParams.get('offset') || '0'
+    const bounds = searchParams.get('bounds')
 
     // Build query string
     const queryParams = new URLSearchParams()
@@ -12,6 +13,7 @@ export async function GET(request) {
     if (fuel) queryParams.append('fuel', fuel)
     queryParams.append('limit', limit)
     queryParams.append('offset', offset)
+    if (bounds) queryParams.append('bounds', bounds)
 
     const backendUrl = process.env.BACKEND_URL || 'http://localhost:3000'
     const response = await fetch(`${backendUrl}/api/power-plants?${queryParams}`, {
@@ -26,8 +28,13 @@ export async function GET(request) {
 
     const data = await response.json()
     
-    // Return the data directly
-    return Response.json(data.data || data)
+    // Return the data with caching headers
+    return Response.json(data.data || data, {
+      headers: {
+        'Cache-Control': 'public, max-age=300, s-maxage=600', // Cache for 5 minutes client, 10 minutes CDN
+        'ETag': `"${Date.now()}"`, // Simple ETag for caching
+      }
+    })
 
   } catch (error) {
     console.error('Error fetching power plants:', error)
