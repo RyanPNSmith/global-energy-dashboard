@@ -15,7 +15,6 @@ import { Line } from 'react-chartjs-2';
 
 ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement, Legend, Tooltip, Title);
 
-const years = ['2013','2014','2015','2016','2017','2018','2019'];
 
 export default function CountryGenerationChart({ countries }) {
   const [data, setData] = useState(null);
@@ -37,7 +36,7 @@ export default function CountryGenerationChart({ countries }) {
     
     console.log('Fetching generation data for countries:', countries);
     
-    fetch(`/api/generation?${params.toString()}`)
+    fetch(`/api/generation?${params.toString()}`, { cache: 'no-store' })
       .then(res => {
         if (!res.ok) {
           throw new Error(`HTTP error! status: ${res.status}`);
@@ -58,15 +57,40 @@ export default function CountryGenerationChart({ countries }) {
       });
   }, [countries]);
 
+  // Refresh when editor updates data
+  useEffect(() => {
+    const handler = () => {
+      if (!countries || countries.length === 0) return;
+      const params = new URLSearchParams();
+      params.append('countries', countries.join(','));
+      setLoading(true);
+      fetch(`/api/generation?${params.toString()}`, { cache: 'no-store' })
+        .then(r => r.json())
+        .then(setData)
+        .catch((e) => setError(e.message))
+        .finally(() => setLoading(false));
+    };
+    window.addEventListener('country-data-updated', handler);
+    return () => window.removeEventListener('country-data-updated', handler);
+  }, [countries]);
+
   const chartData = useMemo(() => {
     if (!data || Object.keys(data).length === 0) {
       return null;
     }
 
-    const hasValidData = Object.values(data).some(countryData => 
-      Object.values(countryData).some(value => value !== null && value > 0)
-    );
-  
+    const yearSet = new Set();
+    Object.values(data).forEach(countryData => {
+      Object.entries(countryData).forEach(([year, value]) => {
+        if (value !== null && value > 0) {
+          yearSet.add(year);
+        }
+      });
+    });
+    const years = Array.from(yearSet).sort((a, b) => a - b);
+
+    const hasValidData = years.length > 0;
+
     if (!hasValidData) {
       return 'no-data';
     }

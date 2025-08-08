@@ -17,7 +17,8 @@ export async function GET(request) {
       params.append('countries', countries);
   
       const response = await fetch(`${backendUrl}/api/generation?${params.toString()}`, {
-        headers: { 'X-API-Key': apiKey }
+        headers: { 'X-API-Key': apiKey },
+        cache: 'no-store'
       });
   
       if (!response.ok) {
@@ -29,7 +30,7 @@ export async function GET(request) {
 
       return Response.json(data, {
         headers: {
-          'Cache-Control': 'public, max-age=300, s-maxage=600',
+          'Cache-Control': 'no-store',
           'ETag': `"${etag}"`
         }
       });
