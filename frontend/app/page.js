@@ -137,6 +137,22 @@ export default function Dashboard() {
         </header>
         
         <main className="container mx-auto py-8 px-6">
+          <section id="overview" className="mb-8">
+            <Card className="dashboard-card">
+              <CardHeader className="bg-[#3d4a5d]/5 border-b">
+                <CardTitle className="text-[#3d4a5d]">Global Energy Map</CardTitle>
+                <CardDescription>
+                  Interactive map showing power plants worldwide by fuel type and capacity
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="h-[65vh] min-h-[480px] lg:h-[75vh]">
+                  <PowerPlantMap />
+                </div>
+              </CardContent>
+            </Card>
+          </section>
+
           <div className="mb-8">
             <h2 className="text-xl font-semibold text-[#3d4a5d] mb-2">Dashboard Overview</h2>
             <p className="text-gray-600">Welcome to your dashboard</p>
@@ -167,20 +183,7 @@ export default function Dashboard() {
               <TopCountriesTable />
             </CardContent>
           </Card>
-
-          <Card className="dashboard-card mb-6">
-            <CardHeader className="bg-[#3d4a5d]/5 border-b">
-              <CardTitle className="text-[#3d4a5d]">Global Energy Map</CardTitle>
-              <CardDescription>
-                Interactive map showing power plants worldwide by fuel type and capacity
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="p-0">
-              <div className="h-96">
-              <PowerPlantMap />
-              </div>
-            </CardContent>
-          </Card>
+          {/* Map moved to top as first section */}
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
             <Card className="dashboard-card">
