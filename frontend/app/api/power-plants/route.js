@@ -36,8 +36,9 @@ export async function GET(request) {
     const data = await response.json()
     const etag = createHash('sha1').update(JSON.stringify(data)).digest('hex');
     
-    // Return the data with caching headers
-    return Response.json(data.data || data, {
+
+    // Return the FULL backend payload so frontend can access metadata like total/count
+    return Response.json(data, {
       headers: {
         'Cache-Control': 'public, max-age=300, s-maxage=600', // Cache for 5 minutes client, 10 minutes CDN
         'ETag': `"${etag}"`, // Simple ETag for caching

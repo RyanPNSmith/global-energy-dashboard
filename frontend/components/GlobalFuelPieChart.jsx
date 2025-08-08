@@ -113,6 +113,14 @@ export default function GlobalFuelPieChart() {
     )
   }
 
+  if (!fuelData || fuelData.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-[300px] text-sm text-gray-600">
+        No fuel capacity data available.
+      </div>
+    )
+  }
+
   const chartData = {
     labels: fuelData.map(d => d.fuel),
     datasets: [
