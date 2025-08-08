@@ -232,23 +232,6 @@ export default function PowerPlantMap({ onCountrySelect }) {
         />
         
         <MapLegend />
-        
-        {/* Data summary */}
-        <div className="absolute top-5 left-5 z-[1000] bg-white bg-opacity-95 p-3 rounded-lg shadow-lg">
-          <p className="text-sm font-medium text-gray-700">
-            Showing {filteredPlants.length.toLocaleString()} of {(totalCount ?? powerPlants.length).toLocaleString()} power plants
-          </p>
-          {mapBounds && ((totalCount ?? viewportPlants.length) > filteredPlants.length) && (
-            <p className="text-xs text-amber-600 mt-1">
-              Viewport contains {(totalCount ?? viewportPlants.length).toLocaleString()} plants, displaying first {filteredPlants.length.toLocaleString()} for performance
-            </p>
-          )}
-          {mapBounds && (
-            <p className="text-xs text-gray-500 mt-1">
-              Viewport: {mapBounds.getSouth().toFixed(2)}, {mapBounds.getWest().toFixed(2)} to {mapBounds.getNorth().toFixed(2)}, {mapBounds.getEast().toFixed(2)}
-            </p>
-          )}
-        </div>
       </MapContainer>
     </div>
   )

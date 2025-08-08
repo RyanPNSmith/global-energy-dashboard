@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { BarChart3, Globe, LineChart, PieChart, Settings, Users, Home, Info } from 'lucide-react'
+import { BarChart3, Globe, PieChart, Settings, Home } from 'lucide-react'
 import dynamic from 'next/dynamic'
 
 const PowerPlantMap = dynamic(() => import('@/components/map/PowerPlantMap'), {
@@ -44,7 +44,7 @@ export default function Dashboard() {
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       {/* Sidebar */}
-      <div className={`dashboard-sidebar ${sidebarCollapsed ? 'w-16' : 'w-64'} h-screen fixed left-0 top-0 z-30 transition-all duration-300`}>
+      <div className={`dashboard-sidebar hidden md:block ${sidebarCollapsed ? 'w-16' : 'w-64'} h-screen fixed left-0 top-0 z-30 transition-all duration-300`}>
         <div className="p-4 flex flex-col h-full">
           <div className="flex items-center justify-between mb-8">
             <h2 className={`font-bold text-white ${sidebarCollapsed ? 'hidden' : 'block'}`}>QUANTUM</h2>
@@ -71,39 +71,21 @@ export default function Dashboard() {
                 </a>
               </li>
               <li>
-                <a href="#analytics" className="flex items-center p-3 rounded-lg hover:bg-white/10 text-white/80">
+                <a href="#analytics" className="flex items-center p-3 rounded-lg hover:bg-white/10 text-white">
                   <BarChart3 className="h-5 w-5" />
                   {!sidebarCollapsed && <span className="ml-3">Analytics</span>}
                 </a>
               </li>
               <li>
-                <a href="#reports" className="flex items-center p-3 rounded-lg hover:bg-white/10 text-white/80">
+                <a href="#top25" className="flex items-center p-3 rounded-lg hover:bg-white/10 text-white">
                   <PieChart className="h-5 w-5" />
-                  {!sidebarCollapsed && <span className="ml-3">Reports</span>}
+                  {!sidebarCollapsed && <span className="ml-3">Top 25</span>}
                 </a>
               </li>
               <li>
-                <a href="#trends" className="flex items-center p-3 rounded-lg hover:bg-white/10 text-white/80">
-                  <LineChart className="h-5 w-5" />
-                  {!sidebarCollapsed && <span className="ml-3">Trends</span>}
-                </a>
-              </li>
-              <li>
-                <a href="#users" className="flex items-center p-3 rounded-lg hover:bg-white/10 text-white/80">
-                  <Users className="h-5 w-5" />
-                  {!sidebarCollapsed && <span className="ml-3">Users</span>}
-                </a>
-              </li>
-              <li>
-                <a href="#settings" className="flex items-center p-3 rounded-lg hover:bg-white/10 text-white/80">
+                <a href="#editor" className="flex items-center p-3 rounded-lg hover:bg-white/10 text-white">
                   <Settings className="h-5 w-5" />
-                  {!sidebarCollapsed && <span className="ml-3">Settings</span>}
-                </a>
-              </li>
-              <li>
-                <a href="#about" className="flex items-center p-3 rounded-lg hover:bg-white/10 text-white/80">
-                  <Info className="h-5 w-5" />
-                  {!sidebarCollapsed && <span className="ml-3">About</span>}
+                  {!sidebarCollapsed && <span className="ml-3">Editor</span>}
                 </a>
               </li>
             </ul>
@@ -119,15 +101,12 @@ export default function Dashboard() {
       </div>
       
       {/* Main content */}
-      <div className={`transition-all duration-300 ${sidebarCollapsed ? 'ml-16' : 'ml-64'} flex-1`}>
+      <div className={`transition-all duration-300 ml-0 ${sidebarCollapsed ? 'md:ml-16' : 'md:ml-64'} flex-1`}>
         <header className="dashboard-header sticky top-0 z-20">
-          <div className="container mx-auto py-4 px-6">
+          <div className="mx-auto max-w-[1600px] py-4 px-6">
             <div className="flex justify-between items-center">
-              <h1 className="text-2xl font-bold">Dashboard</h1>
+              <h1 className="text-2xl font-bold">Global Power Generation Explorer</h1>
               <div className="flex items-center space-x-4">
-                <div className="bg-white/20 rounded-full px-4 py-1 text-sm">
-                  Last updated: August 6, 2025
-                </div>
                 <div className="h-8 w-8 rounded-full bg-white/20 flex items-center justify-center">
                   QC
                 </div>
@@ -136,53 +115,45 @@ export default function Dashboard() {
           </div>
         </header>
         
-        <main className="container mx-auto py-8 px-6">
+        <main className="mx-auto max-w-[1600px] py-8 px-6">
           <div className="mb-8">
             <h2 className="text-xl font-semibold text-[#3d4a5d] mb-2">Dashboard Overview</h2>
             <p className="text-gray-600">Welcome to your dashboard</p>
-            {selectedCountries.length > 0 && (
-              <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <h3 className="text-sm font-medium text-blue-800 mb-2">Selected Countries:</h3>
-                <div className="flex flex-wrap gap-2">
-                  {selectedCountries.map((country, index) => (
-                    <span key={index} className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
-                      {country}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
-          
+          <section id="overview" className="mb-8">
+            <Card className="dashboard-card">
+              <CardHeader className="bg-[#3d4a5d]/5 border-b">
+                <CardTitle className="text-[#3d4a5d]">Global Energy Map</CardTitle>
+                <CardDescription>
+                  Interactive map showing power plants worldwide by fuel type and capacity
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="h-[65vh] min-h-[480px] lg:h-[75vh]">
+                  <PowerPlantMap />
+                </div>
+              </CardContent>
+            </Card>
+          </section>
 
+          {/* Trends and composition row */}
+          <div id="analytics"></div>
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8">
+            <Card className="dashboard-card xl:col-span-2">
+              <CardHeader className="bg-[#3d4a5d]/5 border-b">
+                <CardTitle className="text-[#3d4a5d]">Country Electricity Generation</CardTitle>
+                <CardDescription>
+                  Annual generation for up to 5 selected countries (2013-2019)
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="mb-4">
+                  <CountrySelector selected={selectedCountries} onChange={setSelectedCountries} max={5} />
+                </div>
+                <CountryGenerationChart countries={selectedCountries} />
+              </CardContent>
+            </Card>
 
-          <Card className="dashboard-card mb-6">
-            <CardHeader className="bg-[#3d4a5d]/5 border-b">
-              <CardTitle className="text-[#3d4a5d]">Top Countries by Generating Capacity</CardTitle>
-              <CardDescription>
-                Top 25 countries ranked by total installed capacity
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <TopCountriesTable />
-            </CardContent>
-          </Card>
-
-          <Card className="dashboard-card mb-6">
-            <CardHeader className="bg-[#3d4a5d]/5 border-b">
-              <CardTitle className="text-[#3d4a5d]">Global Energy Map</CardTitle>
-              <CardDescription>
-                Interactive map showing power plants worldwide by fuel type and capacity
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="p-0">
-              <div className="h-96">
-              <PowerPlantMap />
-              </div>
-            </CardContent>
-          </Card>
-          
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
             <Card className="dashboard-card">
               <CardHeader className="bg-[#3d4a5d]/5 border-b">
                 <CardTitle className="text-[#3d4a5d]">Global Primary Fuel Share</CardTitle>
@@ -196,23 +167,26 @@ export default function Dashboard() {
             </Card>
           </div>
 
+          
+          
 
-          <Card className="dashboard-card mb-6">
+
+          <Card id="top25" className="dashboard-card mb-6 max-w-4xl mx-auto w-full">
             <CardHeader className="bg-[#3d4a5d]/5 border-b">
-              <CardTitle className="text-[#3d4a5d]">Country Electricity Generation</CardTitle>
+              <CardTitle className="text-[#3d4a5d]">Top Countries by Generating Capacity</CardTitle>
               <CardDescription>
-                Annual generation for up to 5 selected countries (2013-2019)
+                Top 25 countries ranked by total installed capacity
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="mb-4">
-                <CountrySelector selected={selectedCountries} onChange={setSelectedCountries} max={5} />
-              </div>
-              <CountryGenerationChart countries={selectedCountries} />
+              <TopCountriesTable />
             </CardContent>
           </Card>
+          {/* Map moved to top as first section */}
+          
+          
 
-          <Card className="dashboard-card mb-6">
+          <Card id="editor" className="dashboard-card mb-6">
             <CardHeader className="bg-[#3d4a5d]/5 border-b">
               <CardTitle className="text-[#3d4a5d]">Country Data Editor</CardTitle>
               <CardDescription>
@@ -227,7 +201,7 @@ export default function Dashboard() {
         
         <footer className="bg-[#3d4a5d] text-white py-6">
           <div className="container mx-auto px-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div>
                 <h3 className="text-lg font-semibold mb-4">QUANTUM Capital Group</h3>
                 <p className="text-sm text-white/70">
@@ -239,16 +213,6 @@ export default function Dashboard() {
                 <ul className="space-y-2 text-sm text-white/70">
                   <li><a href="#" className="hover:text-white">Dashboard</a></li>
                   <li><a href="#overview" className="hover:text-white">Overview</a></li>
-                  <li><a href="#analytics" className="hover:text-white">Analytics</a></li>
-                  <li><a href="#reports" className="hover:text-white">Reports</a></li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-medium mb-4">Contact</h4>
-                <ul className="space-y-2 text-sm text-white/70">
-                  <li>info@quantumcapital.com</li>
-                  <li>+1 (555) 123-4567</li>
-                  <li>123 Finance Street, New York, NY</li>
                 </ul>
               </div>
             </div>
