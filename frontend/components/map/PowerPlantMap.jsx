@@ -33,51 +33,97 @@ function MapBoundsHandler({ onBoundsChange }) {
 
 export default function PowerPlantMap({ onCountrySelect }) {
   const [powerPlants, setPowerPlants] = useState([])
+  const [totalCount, setTotalCount] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [hasLoaded, setHasLoaded] = useState(false)
   const [mapBounds, setMapBounds] = useState(null)
   const [viewportPlants, setViewportPlants] = useState([])
+  const MAX_RENDER = 3000
 
   const loadPowerPlants = useCallback(async (bounds = null) => {
-    const params = new URLSearchParams()
-    params.append('limit', '2000') // Reduced from 5000
-    
-    if (bounds) {
-      params.append('bounds', `${bounds.getWest()},${bounds.getSouth()},${bounds.getEast()},${bounds.getNorth()}`)
+    const PAGE_LIMIT = 2000
+    const makeParams = (offset = 0) => {
+      const p = new URLSearchParams()
+      p.append('limit', String(PAGE_LIMIT))
+      p.append('offset', String(offset))
+      if (bounds) {
+        p.append('bounds', `${bounds.getWest()},${bounds.getSouth()},${bounds.getEast()},${bounds.getNorth()}`)
+      }
+      return p
     }
-    
-    const response = await fetch(`/api/power-plants?${params}`)
-    
-    if (!response.ok) {
-      throw new Error(`Failed to fetch power plant data: ${response.status}`)
+
+    const fetchPage = async (offset = 0) => {
+      const response = await fetch(`/api/power-plants?${makeParams(offset)}`)
+      if (!response.ok) {
+        throw new Error(`Failed to fetch power plant data: ${response.status}`)
+      }
+      return response.json()
     }
-    
-    const data = await response.json()
-    const plants = data.data || data
-    
-    return plants.filter(plant =>
+
+    // First page
+    const firstPayload = await fetchPage(0)
+    const firstPlants = (firstPayload.data || firstPayload || []).filter(plant =>
       plant.latitude &&
       plant.longitude &&
       !isNaN(plant.latitude) &&
       !isNaN(plant.longitude) &&
       plant.capacity_mw > 0
     )
+
+    // If the server reports a higher total, page the rest to fetch all results
+    const total = typeof firstPayload.total === 'number' ? firstPayload.total : firstPlants.length
+    const shouldPaginate = total > firstPlants.length
+    if (!shouldPaginate) {
+      return { plants: firstPlants, total }
+    }
+
+    const allPlants = [...firstPlants]
+    const seen = new Set(allPlants.map(p => p.gppd_idnr || p.id))
+    const MAX_TO_FETCH = total // fetch all available
+
+    for (let offset = PAGE_LIMIT; offset < MAX_TO_FETCH; offset += PAGE_LIMIT) {
+      const payload = await fetchPage(offset)
+      const pagePlants = (payload.data || payload || []).filter(plant =>
+        plant.latitude &&
+        plant.longitude &&
+        !isNaN(plant.latitude) &&
+        !isNaN(plant.longitude) &&
+        plant.capacity_mw > 0
+      )
+      for (const plant of pagePlants) {
+        const key = plant.gppd_idnr || plant.id
+        if (!key || !seen.has(key)) {
+          allPlants.push(plant)
+          if (key) seen.add(key)
+        }
+      }
+
+      // Stop early if we fetched fewer than a full page
+      if (!payload || (payload.count && payload.count < PAGE_LIMIT) || pagePlants.length < PAGE_LIMIT) {
+        break
+      }
+    }
+
+    return { plants: allPlants, total }
   }, [])
   
   // Filter plants based on viewport
   const filteredPlants = useMemo(() => {
     if (!mapBounds || viewportPlants.length === 0) return []
-    
-    return viewportPlants.filter(plant => {
+
+    const withinBounds = viewportPlants.filter(plant => {
       const lat = parseFloat(plant.latitude)
       const lng = parseFloat(plant.longitude)
-      
+
       return lat >= mapBounds.getSouth() &&
              lat <= mapBounds.getNorth() &&
              lng >= mapBounds.getWest() &&
              lng <= mapBounds.getEast()
-    }).slice(0, 2000) // Limit to 2000 markers for performance
+    })
+
+    // Limit markers rendered for performance
+    return withinBounds.slice(0, MAX_RENDER)
   }, [mapBounds, viewportPlants])
   
   useEffect(() => {
@@ -90,13 +136,14 @@ export default function PowerPlantMap({ onCountrySelect }) {
         setLoading(true)
         setError(null)
         
-        const plants = await loadPowerPlants()
+        const { plants, total } = await loadPowerPlants()
         
         if (!isMounted) return
         
         if (plants && plants.length > 0) {
           setPowerPlants(plants)
           setViewportPlants(plants)
+          setTotalCount(total ?? plants.length)
           setHasLoaded(true)
         } else {
           throw new Error('No power plants loaded')
@@ -126,8 +173,9 @@ export default function PowerPlantMap({ onCountrySelect }) {
     // Only fetch new data if we have a significant viewport change
     if (bounds && powerPlants.length > 0) {
       try {
-        const newPlants = await loadPowerPlants(bounds)
+        const { plants: newPlants, total } = await loadPowerPlants(bounds)
         setViewportPlants(newPlants)
+        if (typeof total === 'number') setTotalCount(total)
       } catch (error) {
         console.warn('Failed to load viewport data:', error)
       }
@@ -188,8 +236,13 @@ export default function PowerPlantMap({ onCountrySelect }) {
         {/* Data summary */}
         <div className="absolute top-5 left-5 z-[1000] bg-white bg-opacity-95 p-3 rounded-lg shadow-lg">
           <p className="text-sm font-medium text-gray-700">
-            Showing {filteredPlants.length.toLocaleString()} of {powerPlants.length.toLocaleString()} power plants
+            Showing {filteredPlants.length.toLocaleString()} of {(totalCount ?? powerPlants.length).toLocaleString()} power plants
           </p>
+          {mapBounds && ((totalCount ?? viewportPlants.length) > filteredPlants.length) && (
+            <p className="text-xs text-amber-600 mt-1">
+              Viewport contains {(totalCount ?? viewportPlants.length).toLocaleString()} plants, displaying first {filteredPlants.length.toLocaleString()} for performance
+            </p>
+          )}
           {mapBounds && (
             <p className="text-xs text-gray-500 mt-1">
               Viewport: {mapBounds.getSouth().toFixed(2)}, {mapBounds.getWest().toFixed(2)} to {mapBounds.getNorth().toFixed(2)}, {mapBounds.getEast().toFixed(2)}
