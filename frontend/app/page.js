@@ -44,7 +44,7 @@ export default function Dashboard() {
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       {/* Sidebar */}
-      <div className={`dashboard-sidebar ${sidebarCollapsed ? 'w-16' : 'w-64'} h-screen fixed left-0 top-0 z-30 transition-all duration-300`}>
+      <div className={`dashboard-sidebar hidden md:block ${sidebarCollapsed ? 'w-16' : 'w-64'} h-screen fixed left-0 top-0 z-30 transition-all duration-300`}>
         <div className="p-4 flex flex-col h-full">
           <div className="flex items-center justify-between mb-8">
             <h2 className={`font-bold text-white ${sidebarCollapsed ? 'hidden' : 'block'}`}>QUANTUM</h2>
@@ -71,19 +71,19 @@ export default function Dashboard() {
                 </a>
               </li>
               <li>
-                <a href="#analytics" className="flex items-center p-3 rounded-lg hover:bg-white/10 text-white/80">
+                <a href="#analytics" className="flex items-center p-3 rounded-lg hover:bg-white/10 text-white">
                   <BarChart3 className="h-5 w-5" />
                   {!sidebarCollapsed && <span className="ml-3">Analytics</span>}
                 </a>
               </li>
               <li>
-                <a href="#top25" className="flex items-center p-3 rounded-lg hover:bg-white/10 text-white/80">
+                <a href="#top25" className="flex items-center p-3 rounded-lg hover:bg-white/10 text-white">
                   <PieChart className="h-5 w-5" />
                   {!sidebarCollapsed && <span className="ml-3">Top 25</span>}
                 </a>
               </li>
               <li>
-                <a href="#editor" className="flex items-center p-3 rounded-lg hover:bg-white/10 text-white/80">
+                <a href="#editor" className="flex items-center p-3 rounded-lg hover:bg-white/10 text-white">
                   <Settings className="h-5 w-5" />
                   {!sidebarCollapsed && <span className="ml-3">Editor</span>}
                 </a>
@@ -101,15 +101,12 @@ export default function Dashboard() {
       </div>
       
       {/* Main content */}
-      <div className={`transition-all duration-300 ${sidebarCollapsed ? 'ml-16' : 'ml-64'} flex-1`}>
+      <div className={`transition-all duration-300 ml-0 ${sidebarCollapsed ? 'md:ml-16' : 'md:ml-64'} flex-1`}>
         <header className="dashboard-header sticky top-0 z-20">
           <div className="mx-auto max-w-[1600px] py-4 px-6">
             <div className="flex justify-between items-center">
-              <h1 className="text-2xl font-bold">Dashboard</h1>
+              <h1 className="text-2xl font-bold">Global Power Generation Explorer</h1>
               <div className="flex items-center space-x-4">
-                <div className="bg-white/20 rounded-full px-4 py-1 text-sm">
-                  Last updated: August 6, 2025
-                </div>
                 <div className="h-8 w-8 rounded-full bg-white/20 flex items-center justify-center">
                   QC
                 </div>
@@ -119,6 +116,10 @@ export default function Dashboard() {
         </header>
         
         <main className="mx-auto max-w-[1600px] py-8 px-6">
+          <div className="mb-8">
+            <h2 className="text-xl font-semibold text-[#3d4a5d] mb-2">Dashboard Overview</h2>
+            <p className="text-gray-600">Welcome to your dashboard</p>
+          </div>
           <section id="overview" className="mb-8">
             <Card className="dashboard-card">
               <CardHeader className="bg-[#3d4a5d]/5 border-b">
@@ -166,22 +167,7 @@ export default function Dashboard() {
             </Card>
           </div>
 
-          <div className="mb-8">
-            <h2 className="text-xl font-semibold text-[#3d4a5d] mb-2">Dashboard Overview</h2>
-            <p className="text-gray-600">Welcome to your dashboard</p>
-            {selectedCountries.length > 0 && (
-              <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <h3 className="text-sm font-medium text-blue-800 mb-2">Selected Countries:</h3>
-                <div className="flex flex-wrap gap-2">
-                  {selectedCountries.map((country, index) => (
-                    <span key={index} className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
-                      {country}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
+          
           
 
 
