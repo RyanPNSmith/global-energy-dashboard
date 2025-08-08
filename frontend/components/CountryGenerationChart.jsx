@@ -15,7 +15,6 @@ import { Line } from 'react-chartjs-2';
 
 ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement, Legend, Tooltip, Title);
 
-const years = ['2013','2014','2015','2016','2017','2018','2019'];
 
 export default function CountryGenerationChart({ countries }) {
   const [data, setData] = useState(null);
@@ -80,10 +79,18 @@ export default function CountryGenerationChart({ countries }) {
       return null;
     }
 
-    const hasValidData = Object.values(data).some(countryData => 
-      Object.values(countryData).some(value => value !== null && value > 0)
-    );
-  
+    const yearSet = new Set();
+    Object.values(data).forEach(countryData => {
+      Object.entries(countryData).forEach(([year, value]) => {
+        if (value !== null && value > 0) {
+          yearSet.add(year);
+        }
+      });
+    });
+    const years = Array.from(yearSet).sort((a, b) => a - b);
+
+    const hasValidData = years.length > 0;
+
     if (!hasValidData) {
       return 'no-data';
     }

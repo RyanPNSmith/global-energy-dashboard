@@ -21,6 +21,7 @@ export default function CountryDataEditor() {
   const [selectedCountry, setSelectedCountry] = useState(null)
   const [capacityMw, setCapacityMw] = useState('')
   const [generationData, setGenerationData] = useState({})
+  const [deletedYears, setDeletedYears] = useState([])
   const [loading, setLoading] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [newYear, setNewYear] = useState('')
@@ -41,13 +42,13 @@ export default function CountryDataEditor() {
       const arr = genJson.data || genJson
       const genMap = {}
       ;(arr || []).forEach((row) => {
-        const reported = row?.reported_generation_gwh
-        const estimated = row?.estimated_generation_gwh
-        const effective = row?.effective_generation_gwh
-        const chosen = effective ?? reported ?? estimated
-        if (chosen !== null && chosen !== undefined && !Number.isNaN(Number(chosen))) {
-          genMap[String(row.year)] = Number(chosen)
-        }
+      const reported = row?.reported_generation_gwh
+      const estimated = row?.estimated_generation_gwh
+      const effective = row?.effective_generation_gwh
+      const chosen = effective ?? reported ?? estimated
+      if (chosen !== null && chosen !== undefined && !Number.isNaN(Number(chosen)) && Number(chosen) > 0) {
+        genMap[String(row.year)] = Number(chosen)
+      }
       })
 
       // Capacity
@@ -58,10 +59,12 @@ export default function CountryDataEditor() {
 
       setCapacityMw(capacity ?? '')
       setGenerationData(genMap)
+      setDeletedYears([])
     } catch (err) {
       showToast({ title: 'Error fetching data', description: err.message || 'Could not load country data.', variant: 'destructive' })
       setCapacityMw('')
       setGenerationData({})
+      setDeletedYears([])
     } finally {
       setLoading(false)
     }
@@ -83,23 +86,28 @@ export default function CountryDataEditor() {
 
   const handleGenerationChange = (year, e) => {
     const value = e.target.value
-    setGenerationData((prev) => ({ ...prev, [year]: value === '' ? '' : Number(value) }))
+    if (value === '') {
+      setGenerationData((prev) => {
+        const next = { ...prev }
+        delete next[year]
+        return next
+      })
+      setDeletedYears((prev) => (prev.includes(year) ? prev : [...prev, year]))
+    } else {
+      setGenerationData((prev) => ({ ...prev, [year]: Number(value) }))
+      setDeletedYears((prev) => prev.filter((y) => y !== year))
+    }
   }
 
   const handleAddYear = () => {
-    if (newYear && (newGeneration !== '' && !isNaN(Number(newGeneration)))) {
+    if (newYear && newGeneration !== '' && !isNaN(Number(newGeneration))) {
       setGenerationData((prev) => ({ ...prev, [newYear]: Number(newGeneration) }))
+      setDeletedYears((prev) => prev.filter((y) => y !== newYear))
       setNewYear('')
       setNewGeneration('')
       return
     }
-    if (newYear && newGeneration === '') {
-      setGenerationData((prev) => ({ ...prev, [newYear]: undefined }))
-      setNewYear('')
-      setNewGeneration('')
-      return
-    }
-    showToast({ title: 'Invalid Input', description: 'Please enter a valid year and optionally a generation value.', variant: 'destructive' })
+    showToast({ title: 'Invalid Input', description: 'Please enter a valid year and generation value.', variant: 'destructive' })
   }
 
   const handleRemoveYear = (yearToRemove) => {
@@ -108,6 +116,7 @@ export default function CountryDataEditor() {
       delete next[yearToRemove]
       return next
     })
+    setDeletedYears((prev) => (prev.includes(yearToRemove) ? prev : [...prev, yearToRemove]))
   }
 
   const handleSubmit = async (e) => {
@@ -118,6 +127,9 @@ export default function CountryDataEditor() {
     }
     // Incorporate pending new year/value into a local map for validation and submission
     const genForSubmit = { ...generationData }
+    deletedYears.forEach((year) => {
+      genForSubmit[year] = null
+    })
     const hasPendingYear = newYear && newYear !== ''
     const pendingValueIsNumber = newGeneration !== '' && !Number.isNaN(Number(newGeneration))
     if (hasPendingYear && pendingValueIsNumber) {
@@ -169,10 +181,13 @@ export default function CountryDataEditor() {
           setGenerationData((prev) => ({ ...prev, [newYear]: Number(newGeneration) }))
         } else {
           setGenerationData((prev) => ({ ...prev, [newYear]: undefined }))
+          setDeletedYears((prev) => [...prev, newYear])
         }
         setNewYear('')
         setNewGeneration('')
       }
+      setDeletedYears([])
+
       // Trigger listeners to refresh dependent data
       window.dispatchEvent(new CustomEvent('country-data-updated', { detail: { country: selectedCountry, at: Date.now() } }))
       setRefreshToken((t) => t + 1)
@@ -211,7 +226,7 @@ export default function CountryDataEditor() {
                 <div className="space-y-3">
                   {sortedYears.map((year) => (
                     <div key={year} className="flex items-center space-x-2">
-                      <input type="number" step="any" value={generationData[year] || ''} onChange={(e) => handleGenerationChange(year, e)} placeholder={`Generation for ${year}`} className="flex-1 border rounded px-3 py-2 bg-white text-gray-900 placeholder-gray-500" min="0" />
+                      <input type="number" step="any" value={generationData[year] ?? ''} onChange={(e) => handleGenerationChange(year, e)} placeholder={`Generation for ${year}`} className="flex-1 border rounded px-3 py-2 bg-white text-gray-900 placeholder-gray-500" min="0" />
                       <span className="w-16 text-right font-medium text-gray-800">{year}</span>
                       <button type="button" onClick={() => handleRemoveYear(year)} className="p-2 rounded hover:bg-red-50 text-red-600">
                         <X className="h-4 w-4" />

@@ -169,9 +169,12 @@ router.get('/:country/generation', async (req, res) => {
 
     const data = base.rows.map((row) => {
       const year = String(row.year);
-      const reported = row.reported_generation_gwh != null ? Number(row.reported_generation_gwh) : null;
-      const estimated = row.estimated_generation_gwh != null ? Number(row.estimated_generation_gwh) : null;
-      const overrideVal = overrides?.[year] != null ? Number(overrides[year]) : null;
+      const reportedRaw = row.reported_generation_gwh;
+      const estimatedRaw = row.estimated_generation_gwh;
+      const overrideRaw = overrides?.[year];
+      const reported = reportedRaw && Number(reportedRaw) > 0 ? Number(reportedRaw) : null;
+      const estimated = estimatedRaw && Number(estimatedRaw) > 0 ? Number(estimatedRaw) : null;
+      const overrideVal = overrideRaw && Number(overrideRaw) > 0 ? Number(overrideRaw) : null;
       const effective = overrideVal != null ? overrideVal : (reported != null ? reported : estimated);
       return {
         year: Number(year),
@@ -180,6 +183,23 @@ router.get('/:country/generation', async (req, res) => {
         effective_generation_gwh: effective
       };
     });
+        // Include any override-only years beyond base query range
+        for (const [yearStr, val] of Object.entries(overrides)) {
+          const yearNum = Number(yearStr);
+          const numVal = Number(val);
+          if (!Number.isFinite(yearNum) || numVal <= 0) continue;
+          if (!data.find(d => d.year === yearNum)) {
+            data.push({
+              year: yearNum,
+              reported_generation_gwh: null,
+              estimated_generation_gwh: null,
+              effective_generation_gwh: numVal
+            });
+          }
+        }
+    
+        data.sort((a, b) => a.year - b.year);
+    
 
     res.json({ success: true, data });
   } catch (error) {
@@ -307,6 +327,10 @@ router.post('/update-data', async (req, res) => {
         const y = Number(year);
         const currentYear = new Date().getFullYear();
         if (!Number.isInteger(y) || y < 1900 || y > currentYear) continue;
+        if (value === null) {
+          generationOverrides[y] = null;
+          continue;
+        }
         const v = Number(value);
         if (!Number.isFinite(v) || v < 0) continue;
         // Allow decimals for GWh as well
@@ -343,7 +367,7 @@ router.post('/update-data', async (req, res) => {
     if (generationOverrides && effectiveCapacityMw != null && Number.isFinite(effectiveCapacityMw) && effectiveCapacityMw > 0) {
       const maxAnnualGwh = effectiveCapacityMw * 8.76; // MW * 8760 h / 1000 = GWh
       const violatingYears = Object.entries(generationOverrides)
-        .filter(([, v]) => Number(v) > maxAnnualGwh)
+      .filter(([, v]) => v !== null && v !== undefined && Number(v) > maxAnnualGwh)
         .map(([y, v]) => ({ year: Number(y), value_gwh: Number(v), max_allowed_gwh: maxAnnualGwh }));
       if (violatingYears.length > 0) {
         return res.status(422).json({
@@ -361,9 +385,9 @@ router.post('/update-data', async (req, res) => {
       VALUES ($1, $2, $3::jsonb)
       ON CONFLICT (country_long) DO UPDATE SET
         capacity_mw = COALESCE(EXCLUDED.capacity_mw, gppd.country_overrides.capacity_mw),
-        generation_overrides = CASE 
+        generation_overrides = CASE
           WHEN EXCLUDED.generation_overrides IS NULL THEN gppd.country_overrides.generation_overrides
-          ELSE COALESCE(gppd.country_overrides.generation_overrides, '{}'::jsonb) || EXCLUDED.generation_overrides
+          ELSE jsonb_strip_nulls(COALESCE(gppd.country_overrides.generation_overrides, '{}'::jsonb) || EXCLUDED.generation_overrides)
         END,
         updated_at = now();
       `,
