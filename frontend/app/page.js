@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { BarChart3, Globe, LineChart, PieChart, Settings, Users, Home, Info } from 'lucide-react'
+import { BarChart3, Globe, PieChart, Settings, Home } from 'lucide-react'
 import dynamic from 'next/dynamic'
 
 const PowerPlantMap = dynamic(() => import('@/components/map/PowerPlantMap'), {
@@ -77,33 +77,15 @@ export default function Dashboard() {
                 </a>
               </li>
               <li>
-                <a href="#reports" className="flex items-center p-3 rounded-lg hover:bg-white/10 text-white/80">
+                <a href="#top25" className="flex items-center p-3 rounded-lg hover:bg-white/10 text-white/80">
                   <PieChart className="h-5 w-5" />
-                  {!sidebarCollapsed && <span className="ml-3">Reports</span>}
+                  {!sidebarCollapsed && <span className="ml-3">Top 25</span>}
                 </a>
               </li>
               <li>
-                <a href="#trends" className="flex items-center p-3 rounded-lg hover:bg-white/10 text-white/80">
-                  <LineChart className="h-5 w-5" />
-                  {!sidebarCollapsed && <span className="ml-3">Trends</span>}
-                </a>
-              </li>
-              <li>
-                <a href="#users" className="flex items-center p-3 rounded-lg hover:bg-white/10 text-white/80">
-                  <Users className="h-5 w-5" />
-                  {!sidebarCollapsed && <span className="ml-3">Users</span>}
-                </a>
-              </li>
-              <li>
-                <a href="#settings" className="flex items-center p-3 rounded-lg hover:bg-white/10 text-white/80">
+                <a href="#editor" className="flex items-center p-3 rounded-lg hover:bg-white/10 text-white/80">
                   <Settings className="h-5 w-5" />
-                  {!sidebarCollapsed && <span className="ml-3">Settings</span>}
-                </a>
-              </li>
-              <li>
-                <a href="#about" className="flex items-center p-3 rounded-lg hover:bg-white/10 text-white/80">
-                  <Info className="h-5 w-5" />
-                  {!sidebarCollapsed && <span className="ml-3">About</span>}
+                  {!sidebarCollapsed && <span className="ml-3">Editor</span>}
                 </a>
               </li>
             </ul>
@@ -121,7 +103,7 @@ export default function Dashboard() {
       {/* Main content */}
       <div className={`transition-all duration-300 ${sidebarCollapsed ? 'ml-16' : 'ml-64'} flex-1`}>
         <header className="dashboard-header sticky top-0 z-20">
-          <div className="container mx-auto py-4 px-6">
+          <div className="mx-auto max-w-[1600px] py-4 px-6">
             <div className="flex justify-between items-center">
               <h1 className="text-2xl font-bold">Dashboard</h1>
               <div className="flex items-center space-x-4">
@@ -136,7 +118,7 @@ export default function Dashboard() {
           </div>
         </header>
         
-        <main className="container mx-auto py-8 px-6">
+        <main className="mx-auto max-w-[1600px] py-8 px-6">
           <section id="overview" className="mb-8">
             <Card className="dashboard-card">
               <CardHeader className="bg-[#3d4a5d]/5 border-b">
@@ -152,6 +134,37 @@ export default function Dashboard() {
               </CardContent>
             </Card>
           </section>
+
+          {/* Trends and composition row */}
+          <div id="analytics"></div>
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8">
+            <Card className="dashboard-card xl:col-span-2">
+              <CardHeader className="bg-[#3d4a5d]/5 border-b">
+                <CardTitle className="text-[#3d4a5d]">Country Electricity Generation</CardTitle>
+                <CardDescription>
+                  Annual generation for up to 5 selected countries (2013-2019)
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="mb-4">
+                  <CountrySelector selected={selectedCountries} onChange={setSelectedCountries} max={5} />
+                </div>
+                <CountryGenerationChart countries={selectedCountries} />
+              </CardContent>
+            </Card>
+
+            <Card className="dashboard-card">
+              <CardHeader className="bg-[#3d4a5d]/5 border-b">
+                <CardTitle className="text-[#3d4a5d]">Global Primary Fuel Share</CardTitle>
+                <CardDescription>
+                  Share of global generating capacity by primary fuel
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <GlobalFuelPieChart />
+              </CardContent>
+            </Card>
+          </div>
 
           <div className="mb-8">
             <h2 className="text-xl font-semibold text-[#3d4a5d] mb-2">Dashboard Overview</h2>
@@ -172,7 +185,7 @@ export default function Dashboard() {
           
 
 
-          <Card className="dashboard-card mb-6">
+          <Card id="top25" className="dashboard-card mb-6 max-w-4xl mx-auto w-full">
             <CardHeader className="bg-[#3d4a5d]/5 border-b">
               <CardTitle className="text-[#3d4a5d]">Top Countries by Generating Capacity</CardTitle>
               <CardDescription>
@@ -185,37 +198,9 @@ export default function Dashboard() {
           </Card>
           {/* Map moved to top as first section */}
           
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-            <Card className="dashboard-card">
-              <CardHeader className="bg-[#3d4a5d]/5 border-b">
-                <CardTitle className="text-[#3d4a5d]">Global Primary Fuel Share</CardTitle>
-                <CardDescription>
-                  Share of global generating capacity by primary fuel
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <GlobalFuelPieChart />
-              </CardContent>
-            </Card>
-          </div>
+          
 
-
-          <Card className="dashboard-card mb-6">
-            <CardHeader className="bg-[#3d4a5d]/5 border-b">
-              <CardTitle className="text-[#3d4a5d]">Country Electricity Generation</CardTitle>
-              <CardDescription>
-                Annual generation for up to 5 selected countries (2013-2019)
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="mb-4">
-                <CountrySelector selected={selectedCountries} onChange={setSelectedCountries} max={5} />
-              </div>
-              <CountryGenerationChart countries={selectedCountries} />
-            </CardContent>
-          </Card>
-
-          <Card className="dashboard-card mb-6">
+          <Card id="editor" className="dashboard-card mb-6">
             <CardHeader className="bg-[#3d4a5d]/5 border-b">
               <CardTitle className="text-[#3d4a5d]">Country Data Editor</CardTitle>
               <CardDescription>
@@ -230,7 +215,7 @@ export default function Dashboard() {
         
         <footer className="bg-[#3d4a5d] text-white py-6">
           <div className="container mx-auto px-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div>
                 <h3 className="text-lg font-semibold mb-4">QUANTUM Capital Group</h3>
                 <p className="text-sm text-white/70">
@@ -242,16 +227,6 @@ export default function Dashboard() {
                 <ul className="space-y-2 text-sm text-white/70">
                   <li><a href="#" className="hover:text-white">Dashboard</a></li>
                   <li><a href="#overview" className="hover:text-white">Overview</a></li>
-                  <li><a href="#analytics" className="hover:text-white">Analytics</a></li>
-                  <li><a href="#reports" className="hover:text-white">Reports</a></li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-medium mb-4">Contact</h4>
-                <ul className="space-y-2 text-sm text-white/70">
-                  <li>info@quantumcapital.com</li>
-                  <li>+1 (555) 123-4567</li>
-                  <li>123 Finance Street, New York, NY</li>
                 </ul>
               </div>
             </div>

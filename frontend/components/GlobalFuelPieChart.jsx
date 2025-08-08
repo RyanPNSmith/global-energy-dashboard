@@ -160,8 +160,15 @@ export default function GlobalFuelPieChart() {
   }
 
   return (
-    <div className="h-[300px] max-w-[420px] mx-auto">
+    <div className="relative h-[300px] max-w-[420px] mx-auto">
       <Pie data={chartData} options={options} />
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <div className="text-center bg-white/80 backdrop-blur-sm rounded-lg px-3 py-2 shadow-sm">
+          <div className="text-[10px] uppercase tracking-wide text-gray-600">Total Power Plants</div>
+          <div className="text-2xl font-extrabold text-[#3d4a5d] leading-tight">14,500+</div>
+          <div className="text-[10px] text-gray-600">worldwide</div>
+        </div>
+      </div>
     </div>
   )
 }
