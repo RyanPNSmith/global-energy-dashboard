@@ -32,7 +32,7 @@ This document outlines the optimized implementation of the global power plant ma
 ### Backend API
 
 #### Power Plants Endpoint
-**Location**: `backend/src/api/power-plants.js`
+**Location**: `backend/src/api/power-plants.js` (route), with shared overrides logic moved to `backend/src/db/overrides.js`.
 
 **Optimizations**:
 - **Selective field querying**: Only fetches necessary fields

@@ -43,6 +43,7 @@ CREATE TABLE IF NOT EXISTS power_plants (
 
 -- Indexes to speed up common queries (matching live DB naming)
 CREATE INDEX IF NOT EXISTS idx_power_plants_country ON power_plants (country);
+CREATE INDEX IF NOT EXISTS idx_power_plants_country_long ON power_plants (country_long);
 CREATE INDEX IF NOT EXISTS idx_power_plants_primary_fuel ON power_plants (primary_fuel);
 CREATE INDEX IF NOT EXISTS idx_power_plants_lat_lon ON power_plants (latitude, longitude);
 CREATE INDEX IF NOT EXISTS idx_power_plants_capacity ON power_plants (capacity_mw);
