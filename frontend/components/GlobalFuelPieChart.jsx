@@ -63,6 +63,7 @@ export default function GlobalFuelPieChart({ selectedCountries = [] }) {
           if (!listRes.ok) throw new Error('Failed to load country list')
           const listJson = await listRes.json()
           const list = listJson.data || listJson
+          // Map display name (country_long) to ISO-3 country code needed by backend endpoints
           const match = Array.isArray(list) ? list.find(c => (c.country_long || c.country) === selectedCountries[0]) : null
           const code = match?.country || null
           if (!code) throw new Error('Country code not found')

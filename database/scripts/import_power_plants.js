@@ -1,3 +1,5 @@
+// Bulk import for GPPD CSV using PostgreSQL COPY via streaming. Truncates the
+// target table first to guarantee a clean load.
 const fs = require('fs');
 const path = require('path');
 const { Pool } = require('pg');

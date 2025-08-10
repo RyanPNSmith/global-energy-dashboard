@@ -2,6 +2,7 @@ const { Pool } = require('pg');
 const dotenv = require('dotenv');
 
 const path = require('path');
+// Load environment variables from project root .env when invoked from compiled sources
 dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
 
 const pool = new Pool({
@@ -12,6 +13,7 @@ const pool = new Pool({
   database: process.env.DB_NAME,
 });
 
+// Gracefully close the pool when the process is terminated
 process.on('SIGINT', async () => {
   await pool.end();
   process.exit(0);
