@@ -4,6 +4,7 @@ const pool = require('../db');
 
 /**
  * Ensures the overrides table exists; safe to call repeatedly.
+ * Creates schema `gppd` if missing.
  */
 async function ensureOverridesTable() {
   await pool.query(`

@@ -8,6 +8,8 @@ import MapLegend from './MapLegend'
 
 /**
  * Subscribes to Leaflet map move/zoom events and notifies parent about new bounds.
+ *
+ * @param {{ onBoundsChange: (bounds: import('leaflet').LatLngBounds) => void }} props
  */
 function MapBoundsHandler({ onBoundsChange }) {
   const map = useMap()
@@ -32,78 +34,49 @@ function MapBoundsHandler({ onBoundsChange }) {
   return null
 }
 
+/**
+ * Interactive Leaflet map for displaying power plants.
+ * Fetches data for the current viewport and renders markers/clusters.
+ *
+ * @param {{ onCountrySelect?: (countries: string[], opts?: { source?: string }) => void }} props
+ */
 export default function PowerPlantMap({ onCountrySelect }) {
-  const [powerPlants, setPowerPlants] = useState([])
   const [totalCount, setTotalCount] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [hasLoaded, setHasLoaded] = useState(false)
   const [mapBounds, setMapBounds] = useState(null)
   const [viewportPlants, setViewportPlants] = useState([])
   const MAX_RENDER = 3000
 
-  const loadPowerPlants = useCallback(async (bounds = null) => {
+  /**
+   * Load power plant data for the given viewport bounds from the API.
+   *
+   * @param {import('leaflet').LatLngBounds} bounds
+   * @returns {Promise<{ plants: Array<object>, total: number }>} payload
+   */
+  const loadPowerPlants = useCallback(async (bounds) => {
     const PAGE_LIMIT = 2000
-    const makeParams = (offset = 0) => {
-      const p = new URLSearchParams()
-      p.append('limit', String(PAGE_LIMIT))
-      p.append('offset', String(offset))
-      if (bounds) {
-        p.append('bounds', `${bounds.getWest()},${bounds.getSouth()},${bounds.getEast()},${bounds.getNorth()}`)
-      }
-      return p
+    const params = new URLSearchParams()
+    params.append('limit', String(PAGE_LIMIT))
+    params.append('offset', '0')
+    if (bounds) {
+      params.append('bounds', `${bounds.getWest()},${bounds.getSouth()},${bounds.getEast()},${bounds.getNorth()}`)
     }
 
-    const fetchPage = async (offset = 0) => {
-      const response = await fetch(`/api/power-plants?${makeParams(offset)}`)
-      if (!response.ok) {
-        throw new Error(`Failed to fetch power plant data: ${response.status}`)
-      }
-      return response.json()
+    const response = await fetch(`/api/power-plants?${params.toString()}`)
+    if (!response.ok) {
+      throw new Error(`Failed to fetch power plant data: ${response.status}`)
     }
-
-    const firstPayload = await fetchPage(0)
-    const firstPlants = (firstPayload.data || firstPayload || []).filter(plant =>
+    const payload = await response.json()
+    const plants = (payload.data || payload || []).filter(plant =>
       plant.latitude &&
       plant.longitude &&
       !isNaN(plant.latitude) &&
       !isNaN(plant.longitude) &&
       plant.capacity_mw > 0
     )
-
-    const total = typeof firstPayload.total === 'number' ? firstPayload.total : firstPlants.length
-    const shouldPaginate = total > firstPlants.length
-    if (!shouldPaginate) {
-      return { plants: firstPlants, total }
-    }
-
-    const allPlants = [...firstPlants]
-    const seen = new Set(allPlants.map(p => p.gppd_idnr || p.id))
-    const MAX_TO_FETCH = total
-
-    for (let offset = PAGE_LIMIT; offset < MAX_TO_FETCH; offset += PAGE_LIMIT) {
-      const payload = await fetchPage(offset)
-      const pagePlants = (payload.data || payload || []).filter(plant =>
-        plant.latitude &&
-        plant.longitude &&
-        !isNaN(plant.latitude) &&
-        !isNaN(plant.longitude) &&
-        plant.capacity_mw > 0
-      )
-      for (const plant of pagePlants) {
-        const key = plant.gppd_idnr || plant.id
-        if (!key || !seen.has(key)) {
-          allPlants.push(plant)
-          if (key) seen.add(key)
-        }
-      }
-
-      if (!payload || (payload.count && payload.count < PAGE_LIMIT) || pagePlants.length < PAGE_LIMIT) {
-        break
-      }
-    }
-
-    return { plants: allPlants, total }
+    const total = typeof payload.total === 'number' ? payload.total : plants.length
+    return { plants, total }
   }, [])
   
   const filteredPlants = useMemo(() => {
@@ -122,87 +95,26 @@ export default function PowerPlantMap({ onCountrySelect }) {
     return withinBounds.slice(0, MAX_RENDER)
   }, [mapBounds, viewportPlants])
   
+  // Initial loading is handled when first bounds arrive
   useEffect(() => {
-    if (hasLoaded) return
-    
+    if (!mapBounds) return
     let isMounted = true
-    
-    const fetchPowerPlants = async () => {
-      try {
-        setLoading(true)
-        setError(null)
-        
-        const { plants, total } = await loadPowerPlants()
-        
+    setLoading(true)
+    setError(null)
+    loadPowerPlants(mapBounds)
+      .then(({ plants, total }) => {
         if (!isMounted) return
-        
-        if (plants && plants.length > 0) {
-          setPowerPlants(plants)
-          setViewportPlants(plants)
-          setTotalCount(total ?? plants.length)
-          setHasLoaded(true)
-        } else {
-          throw new Error('No power plants loaded')
-        }
-      } catch (err) {
-        if (isMounted) {
-          setError(err instanceof Error ? err.message : 'An unknown error occurred')
-          setHasLoaded(true)
-        }
-      } finally {
-        if (isMounted) {
-          setLoading(false)
-        }
-      }
-    }
-    
-    fetchPowerPlants()
-    
-    return () => {
-      isMounted = false
-    }
-  }, [hasLoaded, loadPowerPlants])
+        setViewportPlants(plants)
+        if (typeof total === 'number') setTotalCount(total)
+      })
+      .catch((err) => setError(err instanceof Error ? err.message : 'An unknown error occurred'))
+      .finally(() => setLoading(false))
+    return () => { isMounted = false }
+  }, [mapBounds, loadPowerPlants])
   
   const handleBoundsChange = useCallback(async (bounds) => {
     setMapBounds(bounds)
-    
-    if (bounds && powerPlants.length > 0) {
-      try {
-        const { plants: newPlants, total } = await loadPowerPlants(bounds)
-        setViewportPlants(newPlants)
-        if (typeof total === 'number') setTotalCount(total)
-      } catch (error) {
-        console.warn('Failed to load viewport data:', error)
-      }
-    }
-  }, [loadPowerPlants, powerPlants.length])
-
-  if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center h-full">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#3d4a5d]"></div>
-        <p className="mt-2 text-sm text-gray-600">Loading power plant data...</p>
-        <div className="mt-4 w-64 bg-gray-200 rounded-full h-2">
-          <div className="bg-[#3d4a5d] h-2 rounded-full animate-pulse" style={{ width: '60%' }}></div>
-        </div>
-        <p className="mt-2 text-xs text-gray-500">Optimizing for performance...</p>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="flex flex-col items-center justify-center h-full">
-        <p className="text-red-500 mb-2">Error loading map: {error}</p>
-        <button
-          onClick={() => window.location.reload()}
-          className="px-4 py-2 bg-[#3d4a5d] text-white rounded-lg hover:bg-[#4d5b70] transition-colors"
-        >
-          Retry
-        </button>
-      </div>
-    )
-  }
+  }, [])
 
   return (
     <div className="h-full w-full relative">
@@ -233,6 +145,22 @@ export default function PowerPlantMap({ onCountrySelect }) {
         
         <MapLegend />
       </MapContainer>
+
+      {(loading || error) && (
+        <div className="absolute inset-0 flex items-center justify-center bg-white/60 pointer-events-none">
+          {loading && (
+            <div className="flex flex-col items-center justify-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#3d4a5d]"></div>
+              <p className="mt-2 text-sm text-gray-600">Loading power plant data...</p>
+            </div>
+          )}
+          {error && (
+            <div className="flex flex-col items-center justify-center">
+              <p className="text-red-500 mb-2">Error loading map: {error}</p>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }

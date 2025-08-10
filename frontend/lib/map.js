@@ -1,3 +1,7 @@
+/**
+ * Mapping of primary fuel types to display colors used across map and charts.
+ * @type {Record<string, string>}
+ */
 export const fuelColors = {
     Coal: '#000000',
     Gas: '#FFA500',
@@ -12,10 +16,20 @@ export const fuelColors = {
     Other: '#808080'
   }
   
+  /**
+   * Resolve a fuel type to its display color.
+   * @param {string} fuel
+   * @returns {string}
+   */
   export function getFuelColor(fuel) {
     return fuelColors[fuel] || fuelColors.Other
   }
   
+  /**
+   * Derive a reasonable marker radius from plant capacity (MW).
+   * @param {number|string} capacity
+   * @returns {number}
+   */
   export function getMarkerRadius(capacity) {
     const cap = Number(capacity)
     if (isNaN(cap) || cap <= 0) return 3

@@ -48,6 +48,12 @@ const MAJOR_FUELS = [
   'Waste'
 ]
 
+/**
+ * Pie chart of global or single-country fuel capacity share.
+ * If one country is selected, shows that country's fuel mix; otherwise shows global share.
+ *
+ * @param {{ selectedCountries?: string[] }} props - Selected display names (country_long).
+ */
 export default function GlobalFuelPieChart({ selectedCountries = [] }) {
   const [fuelData, setFuelData] = useState([])
   const [loading, setLoading] = useState(true)

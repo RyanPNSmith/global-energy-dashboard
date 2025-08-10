@@ -4,6 +4,11 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Loader2, Plus, X } from 'lucide-react'
 import CountrySelector from '@/components/CountrySelector'
 
+/**
+ * Minimal toast for inline success/error notifications.
+ *
+ * @param {{ variant?: 'default' | 'destructive', title?: string, description?: string }} props
+ */
 function Toast({ variant = 'default', title, description }) {
   if (!title && !description) return null
   const color = variant === 'destructive' ? 'text-red-700 bg-red-50 border-red-200' : 'text-green-700 bg-green-50 border-green-200'
@@ -49,6 +54,10 @@ export default function CountryDataEditor() {
     setTimeout(() => setToast(null), 3500)
   }, [])
 
+  /**
+   * Fetch capacity and generation details for a display name (country_long).
+   * @param {string} countryName
+   */
   const fetchCountryDetails = useCallback(async (countryName) => {
     setLoading(true)
     try {

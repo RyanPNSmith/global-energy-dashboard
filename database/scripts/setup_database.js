@@ -12,6 +12,9 @@ const dbConfig = {
   port: Number(process.env.DB_PORT) || 5432,
 };
 
+/**
+ * Creates the database if missing, then creates schema and tables for GPPD.
+ */
 async function setupDatabase() {
   try {
     console.log(`Checking if database ${dbConfig.database} exists...`);
@@ -38,8 +41,6 @@ async function setupDatabase() {
 
   const pool = new Pool({
     ...dbConfig,
-    // Ensure queries run against the gppd schema by default
-    options: `project=gppd&search_path=gppd`,
   });
 
   const client = await pool.connect();

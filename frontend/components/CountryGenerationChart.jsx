@@ -19,7 +19,7 @@ ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement, Legend, 
 /**
  * Renders a multi-series line chart of annual electricity generation for up to 5 countries.
  *
- * @param {{ countries: string[] }} props
+ * @param {{ countries: string[] }} props - Display names (country_long) of up to five countries.
  */
 export default function CountryGenerationChart({ countries }) {
   const [data, setData] = useState(null);

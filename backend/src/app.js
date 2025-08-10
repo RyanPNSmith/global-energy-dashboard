@@ -5,6 +5,9 @@ const generationRoutes = require('./api/generation');
 const globalRoutes = require('./api/global');
 const validateApiKey = require('./middleware/auth');
 
+/**
+ * Express application wiring API routes with API key middleware.
+ */
 const app = express();
 
 app.use(express.json());

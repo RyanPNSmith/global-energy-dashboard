@@ -5,6 +5,9 @@ const path = require('path');
 // Load environment variables from project root .env when invoked from compiled sources
 dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
 
+/**
+ * Shared PostgreSQL connection pool for backend queries.
+ */
 const pool = new Pool({
   host: process.env.DB_HOST,
   port: process.env.DB_PORT ? Number(process.env.DB_PORT) : undefined,

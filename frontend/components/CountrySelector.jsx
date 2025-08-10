@@ -6,10 +6,11 @@ import { X, ChevronDown, Globe } from "lucide-react";
 /**
  * Country multi-select with search and external selection sync.
  *
- * Props
- * - selected: string[] of country_long values
- * - onChange: (next: string[]) => void
- * - max: number maximum selections (default 5)
+ * @param {{
+ *  selected?: string[],
+ *  onChange: (next: string[]) => void,
+ *  max?: number
+ * }} props - `selected` are display names (country_long); `max` caps the selection size (default 5).
  */
 export default function CountrySelector({ selected = [], onChange, max = 5 }) {
   const [options, setOptions] = useState([]);
