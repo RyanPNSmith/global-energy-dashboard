@@ -17,13 +17,28 @@ router.get('/', async (req, res) => {
       AND longitude BETWEEN -180 AND 180
     `;
 
+    // Bounds filtering without requiring PostGIS
     if (bounds) {
       const [west, south, east, north] = bounds.split(',').map(Number);
-      if (west && south && east && north) {
-        paramCount++;
-        whereClauses += ` AND ST_MakeEnvelope($${paramCount}, $${paramCount+1}, $${paramCount+2}, $${paramCount+3}, 4326) && ST_MakePoint(longitude, latitude)`;
-        params.push(west, south, east, north);
-        paramCount += 3;
+      if (
+        Number.isFinite(west) &&
+        Number.isFinite(south) &&
+        Number.isFinite(east) &&
+        Number.isFinite(north)
+      ) {
+        // Handle normal case where bbox does not cross the antimeridian
+        if (west <= east) {
+          whereClauses += ` AND latitude >= $${paramCount + 1} AND latitude <= $${paramCount + 2}`;
+          whereClauses += ` AND longitude >= $${paramCount + 3} AND longitude <= $${paramCount + 4}`;
+          params.push(south, north, west, east);
+          paramCount += 4;
+        } else {
+          // If bbox crosses antimeridian, longitudes satisfy lon >= west OR lon <= east
+          whereClauses += ` AND latitude >= $${paramCount + 1} AND latitude <= $${paramCount + 2}`;
+          whereClauses += ` AND (longitude >= $${paramCount + 3} OR longitude <= $${paramCount + 4})`;
+          params.push(south, north, west, east);
+          paramCount += 4;
+        }
       }
     }
 
