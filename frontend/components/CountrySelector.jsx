@@ -41,6 +41,18 @@ export default function CountrySelector({ selected = [], onChange, max = 5 }) {
     fetchCountries();
   }, []);
 
+  // Listen to external selects (e.g., map 'View Country Data')
+  useEffect(() => {
+    function onExternalSelect(e) {
+      const countries = e.detail?.countries || [];
+      if (countries.length === 0) return;
+      const unique = Array.from(new Set([...(selected || []), ...countries]));
+      onChange(unique.slice(0, max));
+    }
+    window.addEventListener('country-selected', onExternalSelect);
+    return () => window.removeEventListener('country-selected', onExternalSelect);
+  }, [selected, onChange, max]);
+
   // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event) {

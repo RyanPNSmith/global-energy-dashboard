@@ -67,35 +67,35 @@ export default function TopCountriesTable() {
     return sortConfig.direction === 'asc' ? '▲' : '▼'
   }
 
-  if (loading) return <p>Loading...</p>
+  if (loading) return <div className="h-[260px] flex items-center justify-center text-sm text-gray-600">Loading...</div>
   if (error) return <p className="text-red-500">{error}</p>
 
   return (
     <div className="overflow-x-auto">
-      <table className="min-w-full divide-y divide-gray-200">
+      <table className="min-w-full table-fixed divide-y divide-gray-200 text-sm">
         <thead className="bg-gray-50">
           <tr>
-            <th className="px-4 py-2 text-left text-sm font-medium text-gray-500">Rank</th>
+            <th className="px-3 py-2 text-left font-medium text-gray-500 w-16">Rank</th>
             <th
-              className="px-4 py-2 text-left text-sm font-medium text-gray-500 cursor-pointer"
+              className="px-3 py-2 text-left font-medium text-gray-500 cursor-pointer"
               onClick={() => requestSort('country_long')}
             >
               Country {sortIndicator('country_long')}
             </th>
             <th
-              className="px-4 py-2 text-right text-sm font-medium text-gray-500 cursor-pointer"
+              className="px-3 py-2 text-right font-medium text-gray-500 cursor-pointer w-44"
               onClick={() => requestSort('total_capacity')}
             >
               Total Capacity (MW) {sortIndicator('total_capacity')}
             </th>
             <th
-              className="px-4 py-2 text-right text-sm font-medium text-gray-500 cursor-pointer"
+              className="px-3 py-2 text-right font-medium text-gray-500 cursor-pointer w-24"
               onClick={() => requestSort('plant_count')}
             >
               Plants {sortIndicator('plant_count')}
             </th>
             <th
-              className="px-4 py-2 text-right text-sm font-medium text-gray-500 cursor-pointer"
+              className="px-3 py-2 text-right font-medium text-gray-500 cursor-pointer w-44"
               onClick={() => requestSort('avg_capacity')}
             >
               Avg Capacity (MW) {sortIndicator('avg_capacity')}
@@ -105,11 +105,11 @@ export default function TopCountriesTable() {
         <tbody className="divide-y divide-gray-200">
           {sortedCountries.map((c, idx) => (
             <tr key={c.country} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-              <td className="px-4 py-2 text-sm text-gray-700">{idx + 1}</td>
-              <td className="px-4 py-2 text-sm text-gray-700">{c.country_long}</td>
-              <td className="px-4 py-2 text-sm text-gray-700 text-right">{Math.round(c.total_capacity).toLocaleString()}</td>
-              <td className="px-4 py-2 text-sm text-gray-700 text-right">{c.plant_count}</td>
-              <td className="px-4 py-2 text-sm text-gray-700 text-right">{Math.round(c.avg_capacity).toLocaleString()}</td>
+              <td className="px-3 py-2 text-gray-700">{idx + 1}</td>
+              <td className="px-3 py-2 text-gray-700 truncate" title={c.country_long}>{c.country_long}</td>
+              <td className="px-3 py-2 text-gray-700 text-right">{Math.round(c.total_capacity).toLocaleString()}</td>
+              <td className="px-3 py-2 text-gray-700 text-right">{c.plant_count}</td>
+              <td className="px-3 py-2 text-gray-700 text-right">{Math.round(c.avg_capacity).toLocaleString()}</td>
             </tr>
           ))}
         </tbody>

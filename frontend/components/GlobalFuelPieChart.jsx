@@ -62,7 +62,7 @@ const MAJOR_FUELS = [
   'Waste'
 ]
 
-export default function GlobalFuelPieChart() {
+export default function GlobalFuelPieChart({ selectedCountries = [] }) {
   const [fuelData, setFuelData] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -71,12 +71,29 @@ export default function GlobalFuelPieChart() {
     const fetchData = async () => {
       try {
         setLoading(true)
-        const res = await fetch('/api/global/fuel-capacity')
+        let res
+        if (Array.isArray(selectedCountries) && selectedCountries.length === 1) {
+          // map country_long -> country code via /api/countries
+          const listRes = await fetch('/api/countries', { cache: 'no-store' })
+          if (!listRes.ok) throw new Error('Failed to load country list')
+          const listJson = await listRes.json()
+          const list = listJson.data || listJson
+          const match = Array.isArray(list) ? list.find(c => (c.country_long || c.country) === selectedCountries[0]) : null
+          const code = match?.country || null
+          if (!code) throw new Error('Country code not found')
+          res = await fetch(`/api/countries/${encodeURIComponent(code)}/fuels`, { cache: 'no-store' })
+        } else {
+          res = await fetch('/api/global/fuel-capacity')
+        }
         if (!res.ok) {
           throw new Error('Failed to fetch fuel capacity data')
         }
         const json = await res.json()
-        const data = json.data || json
+        let data = json.data || json
+        // Normalize to common shape { fuel, capacity_mw }
+        if (Array.isArray(data) && data.length > 0 && data[0].primary_fuel) {
+          data = data.map(d => ({ fuel: d.primary_fuel, capacity_mw: Number(d.total_capacity || d.capacity_mw || 0) }))
+        }
         // Group non-major fuels into "Other" and sum capacities
         const grouped = data.reduce((acc, raw) => {
           const rawFuel = raw.fuel || raw.primary_fuel
@@ -99,7 +116,7 @@ export default function GlobalFuelPieChart() {
       }
     }
     fetchData()
-  }, [])
+  }, [selectedCountries])
 
   if (loading) {
     return <div className="flex items-center justify-center h-[300px]">Loading fuel data...</div>
@@ -160,15 +177,8 @@ export default function GlobalFuelPieChart() {
   }
 
   return (
-    <div className="relative h-[300px] max-w-[420px] mx-auto">
+    <div className="relative h-[360px] max-w-[480px] mx-auto">
       <Pie data={chartData} options={options} />
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <div className="text-center bg-white/80 backdrop-blur-sm rounded-lg px-3 py-2 shadow-sm">
-          <div className="text-[10px] uppercase tracking-wide text-gray-600">Total Power Plants</div>
-          <div className="text-2xl font-extrabold text-[#3d4a5d] leading-tight">14,500+</div>
-          <div className="text-[10px] text-gray-600">worldwide</div>
-        </div>
-      </div>
     </div>
   )
 }

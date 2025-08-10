@@ -6,32 +6,50 @@
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;
   --background-end-rgb: 255, 255, 255;
-  
+
+  /* shadcn/ui design tokens */
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
+  --muted: 210 40% 96.1%;
+  --muted-foreground: 215.4 16.3% 46.9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222.2 84% 4.9%;
+  --card: 0 0% 100%;
+  --card-foreground: 222.2 84% 4.9%;
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  --primary: 215 25% 30%;
+  --primary-foreground: 210 40% 98%;
+  --secondary: 210 40% 96.1%;
+  --secondary-foreground: 222.2 47.4% 11.2%;
+  --accent: 215 70% 60%;
+  --accent-foreground: 222.2 47.4% 11.2%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+  --ring: 215 20.2% 65.1%;
+  --radius: 0.5rem;
+
   /* Chart colors */
   --chart-1: 210 100% 50%;
   --chart-2: 25 100% 50%;
   --chart-3: 120 100% 35%;
   --chart-4: 270 100% 50%;
   --chart-5: 0 100% 50%;
-  
-  /* Custom theme colors */
-  --primary: 215 25% 30%;
-  --primary-light: 215 25% 40%;
-  --primary-dark: 215 25% 20%;
-  --accent: 215 70% 60%;
 }
 
+/* Force a light, clean background regardless of OS dark mode */
 @media (prefers-color-scheme: dark) {
   :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 31, 41, 55; /* gray-800 */
-    --background-end-rgb: 55, 65, 81;  /* gray-700 */
+    --foreground-rgb: 0, 0, 0;
+    --background-start-rgb: 249, 250, 251; /* gray-50 */
+    --background-end-rgb: 243, 244, 246;  /* gray-100 */
   }
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(to bottom right, rgb(var(--background-start-rgb)), rgb(var(--background-end-rgb)));
+  color: hsl(var(--foreground));
+  /* Soft light gradient always */
+  background: linear-gradient(to bottom right, #f9fafb, #f3f4f6);
   min-height: 100vh;
   overflow-x: hidden;
 }
@@ -46,7 +64,7 @@ body {
 /* Custom card styling */
 .dashboard-card {
   transition: all 0.2s ease;
-  border: 1px solid rgba(61, 74, 93, 0.1);
+  border: 1px solid hsl(var(--border));
 }
 
 .dashboard-card:hover {

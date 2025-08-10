@@ -27,6 +27,21 @@ export default function CountryDataEditor() {
   const [newYear, setNewYear] = useState('')
   const [newGeneration, setNewGeneration] = useState('')
 
+  // Prevent map selections from auto-populating editor
+  useEffect(() => {
+    function onExternalSelect(e) {
+      const source = e.detail?.source
+      if (source === 'map') {
+        // ignore map-originated selections
+        return
+      }
+      const countries = e.detail?.countries || []
+      if (countries.length > 0) setSelectedCountry(countries[0])
+    }
+    window.addEventListener('country-selected', onExternalSelect)
+    return () => window.removeEventListener('country-selected', onExternalSelect)
+  }, [])
+
   const showToast = useCallback((t) => {
     setToast(t)
     setTimeout(() => setToast(null), 3500)

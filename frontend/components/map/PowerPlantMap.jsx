@@ -226,9 +226,16 @@ export default function PowerPlantMap({ onCountrySelect }) {
         
         <MapBoundsHandler onBoundsChange={handleBoundsChange} />
         
-        <PowerPlantMarkers 
-          plants={filteredPlants} 
-          onCountrySelect={onCountrySelect} 
+        <PowerPlantMarkers
+          plants={filteredPlants}
+          onCountrySelect={(countries, { source } = {}) => {
+            if (Array.isArray(countries) && countries.length > 0) {
+              // Notify charts/KPIs
+              onCountrySelect?.(countries)
+              // Notify selector only; editor should NOT pick up this event
+              window.dispatchEvent(new CustomEvent('country-selected', { detail: { countries, source: source || 'map' } }))
+            }
+          }}
         />
         
         <MapLegend />
