@@ -1,0 +1,104 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+
+  /* shadcn/ui design tokens */
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
+  --muted: 210 40% 96.1%;
+  --muted-foreground: 215.4 16.3% 46.9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222.2 84% 4.9%;
+  --card: 0 0% 100%;
+  --card-foreground: 222.2 84% 4.9%;
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  --primary: 215 25% 30%;
+  --primary-foreground: 210 40% 98%;
+  --secondary: 210 40% 96.1%;
+  --secondary-foreground: 222.2 47.4% 11.2%;
+  --accent: 215 70% 60%;
+  --accent-foreground: 222.2 47.4% 11.2%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+  --ring: 215 20.2% 65.1%;
+  --radius: 0.5rem;
+
+  /* Chart colors */
+  --chart-1: 210 100% 50%;
+  --chart-2: 25 100% 50%;
+  --chart-3: 120 100% 35%;
+  --chart-4: 270 100% 50%;
+  --chart-5: 0 100% 50%;
+}
+
+/* Force a light, clean background regardless of OS dark mode */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 0, 0, 0;
+    --background-start-rgb: 249, 250, 251; /* gray-50 */
+    --background-end-rgb: 243, 244, 246;  /* gray-100 */
+  }
+}
+
+body {
+  color: hsl(var(--foreground));
+  /* Soft light gradient always */
+  background: linear-gradient(to bottom right, #f9fafb, #f3f4f6);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Fix for Leaflet map container */
+.leaflet-container {
+  height: 100%;
+  width: 100%;
+  border-radius: 0.5rem;
+}
+
+/* Custom card styling */
+.dashboard-card {
+  transition: all 0.2s ease;
+  border: 1px solid hsl(var(--border));
+}
+
+.dashboard-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(61, 74, 93, 0.1), 0 8px 10px -6px rgba(61, 74, 93, 0.1);
+}
+
+/* Custom header styling */
+.dashboard-header {
+  background: linear-gradient(to right, #3d4a5d, #4d5b70);
+  color: white;
+  box-shadow: 0 4px 6px -1px rgba(61, 74, 93, 0.1), 0 2px 4px -1px rgba(61, 74, 93, 0.06);
+}
+
+/* Sidebar styling */
+.dashboard-sidebar {
+  background-color: #3d4a5d;
+  color: white;
+  transition: all 0.3s ease;
+}
+
+/* Custom button styling */
+.custom-button {
+  background: linear-gradient(to right, #3d4a5d, #4d5b70);
+  color: white;
+  transition: all 0.2s ease;
+}
+
+.custom-button:hover {
+  background: linear-gradient(to right, #4d5b70, #5d6b80);
+  transform: translateY(-1px);
+}
+
+/* Fallback color when using shadcn's text-muted-foreground */
+.text-muted-foreground {
+  color: rgb(107 114 128); /* Tailwind gray-600 */
+}

@@ -1,0 +1,46 @@
+version: '3.9'
+services:
+  db:
+    image: postgres:13
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  backend:
+    build: ./backend
+    depends_on:
+      - db
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      # Backend reads these via dotenv in code, but we also export here for clarity
+      DB_HOST: db
+      DB_PORT: ${DB_PORT:-5432}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      # API key used by frontend to call backend
+      API_KEY: ${API_KEY}
+    ports:
+      - "3000:3000"
+
+  frontend:
+    build: ./frontend
+    depends_on:
+      - backend
+    environment:
+      NODE_ENV: production
+      # Next.js server routes use these to reach the backend within the network
+      BACKEND_URL: http://backend:3000
+      BACKEND_API_KEY: ${API_KEY}
+    ports:
+      - "3001:3000"
+
+volumes:
+  pgdata:
