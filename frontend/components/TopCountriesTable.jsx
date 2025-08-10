@@ -33,7 +33,6 @@ export default function TopCountriesTable() {
 
     fetchCountries()
 
-    // Listen for edits to force refresh
     const onUpdated = () => fetchCountries()
     window.addEventListener('country-data-updated', onUpdated)
     return () => window.removeEventListener('country-data-updated', onUpdated)

@@ -1,5 +1,8 @@
 import { createHash } from 'crypto'
 
+/**
+ * Fetches capacity breakdown by primary fuel for a single country code.
+ */
 export async function GET(request, { params }) {
   try {
     const backendUrl = process.env.BACKEND_URL || 'http://localhost:3000'

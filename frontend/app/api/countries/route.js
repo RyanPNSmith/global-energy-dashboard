@@ -1,4 +1,7 @@
 export async function GET(request) {
+  /**
+   * Fetches the list of countries (`country` and `country_long`) from backend.
+   */
   try {
     const backendUrl = process.env.BACKEND_URL || 'http://localhost:3000';
     const apiKey = process.env.BACKEND_API_KEY;
@@ -35,6 +38,9 @@ export async function GET(request) {
 }
 
 export async function POST(request) {
+  /**
+   * Proxies country update payloads (capacity and generation overrides).
+   */
   try {
     const backendUrl = process.env.BACKEND_URL || 'http://localhost:3000'
     const apiKey = process.env.BACKEND_API_KEY

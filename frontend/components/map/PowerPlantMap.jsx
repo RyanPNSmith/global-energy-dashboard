@@ -6,7 +6,9 @@ import 'leaflet/dist/leaflet.css'
 import PowerPlantMarkers from './PowerPlantMarkers'
 import MapLegend from './MapLegend'
 
-// Component to handle map bounds changes
+/**
+ * Subscribes to Leaflet map move/zoom events and notifies parent about new bounds.
+ */
 function MapBoundsHandler({ onBoundsChange }) {
   const map = useMap()
   
@@ -19,7 +21,6 @@ function MapBoundsHandler({ onBoundsChange }) {
     map.on('moveend', handleMoveEnd)
     map.on('zoomend', handleMoveEnd)
     
-    // Initial bounds
     handleMoveEnd()
     
     return () => {
@@ -61,7 +62,6 @@ export default function PowerPlantMap({ onCountrySelect }) {
       return response.json()
     }
 
-    // First page
     const firstPayload = await fetchPage(0)
     const firstPlants = (firstPayload.data || firstPayload || []).filter(plant =>
       plant.latitude &&
@@ -71,7 +71,6 @@ export default function PowerPlantMap({ onCountrySelect }) {
       plant.capacity_mw > 0
     )
 
-    // If the server reports a higher total, page the rest to fetch all results
     const total = typeof firstPayload.total === 'number' ? firstPayload.total : firstPlants.length
     const shouldPaginate = total > firstPlants.length
     if (!shouldPaginate) {
@@ -80,7 +79,7 @@ export default function PowerPlantMap({ onCountrySelect }) {
 
     const allPlants = [...firstPlants]
     const seen = new Set(allPlants.map(p => p.gppd_idnr || p.id))
-    const MAX_TO_FETCH = total // fetch all available
+    const MAX_TO_FETCH = total
 
     for (let offset = PAGE_LIMIT; offset < MAX_TO_FETCH; offset += PAGE_LIMIT) {
       const payload = await fetchPage(offset)
@@ -99,7 +98,6 @@ export default function PowerPlantMap({ onCountrySelect }) {
         }
       }
 
-      // Stop early if we fetched fewer than a full page
       if (!payload || (payload.count && payload.count < PAGE_LIMIT) || pagePlants.length < PAGE_LIMIT) {
         break
       }
@@ -108,7 +106,6 @@ export default function PowerPlantMap({ onCountrySelect }) {
     return { plants: allPlants, total }
   }, [])
   
-  // Filter plants based on viewport
   const filteredPlants = useMemo(() => {
     if (!mapBounds || viewportPlants.length === 0) return []
 
@@ -122,7 +119,6 @@ export default function PowerPlantMap({ onCountrySelect }) {
              lng <= mapBounds.getEast()
     })
 
-    // Limit markers rendered for performance
     return withinBounds.slice(0, MAX_RENDER)
   }, [mapBounds, viewportPlants])
   
@@ -170,7 +166,6 @@ export default function PowerPlantMap({ onCountrySelect }) {
   const handleBoundsChange = useCallback(async (bounds) => {
     setMapBounds(bounds)
     
-    // Only fetch new data if we have a significant viewport change
     if (bounds && powerPlants.length > 0) {
       try {
         const { plants: newPlants, total } = await loadPowerPlants(bounds)
@@ -230,9 +225,7 @@ export default function PowerPlantMap({ onCountrySelect }) {
           plants={filteredPlants}
           onCountrySelect={(countries, { source } = {}) => {
             if (Array.isArray(countries) && countries.length > 0) {
-              // Notify charts/KPIs
               onCountrySelect?.(countries)
-              // Notify selector only; editor should NOT pick up this event
               window.dispatchEvent(new CustomEvent('country-selected', { detail: { countries, source: source || 'map' } }))
             }
           }}

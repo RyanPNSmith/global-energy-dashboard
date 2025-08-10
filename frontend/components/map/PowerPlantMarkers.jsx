@@ -5,7 +5,14 @@ import { CircleMarker, Popup } from 'react-leaflet'
 import { Badge } from '@/components/ui/badge'
 import { getFuelColor, getMarkerRadius } from '@/lib/map'
 
-// Simple clustering function
+/**
+ * Groups nearby plants into clusters using a simple distance threshold on lat/lng.
+ * This trades accuracy for speed and avoids bringing in a clustering library.
+ *
+ * @param {Array<Record<string, any>>} plants - Flat list of power plants
+ * @param {number} [maxDistance=0.5] - Distance threshold in degrees for clustering
+ * @returns {Array<Array<Record<string, any>>>} Array of clusters (each cluster is a list of plants)
+ */
 function clusterMarkers(plants, maxDistance = 0.5) {
   const clusters = []
   const used = new Set()
@@ -27,7 +34,6 @@ function clusterMarkers(plants, maxDistance = 0.5) {
       const lat2 = parseFloat(plant2.latitude)
       const lng2 = parseFloat(plant2.longitude)
 
-      // Calculate distance
       const distance = Math.sqrt(
         Math.pow(lat1 - lat2, 2) + Math.pow(lng1 - lng2, 2)
       )
@@ -45,21 +51,19 @@ function clusterMarkers(plants, maxDistance = 0.5) {
 }
 
 export default function PowerPlantMarkers({ plants, onCountrySelect }) {
-  // Cluster markers for better performance
+  // Render clusters or individual markers; heavy work is memoized in parent
   const clusteredPlants = useMemo(() => {
     if (plants.length <= 1000) {
-      // For smaller datasets, don't cluster
       return plants.map(plant => [plant])
     }
-    
-    return clusterMarkers(plants, 0.3) // Adjust clustering distance as needed
+
+    return clusterMarkers(plants, 0.3)
   }, [plants])
 
   return (
     <>
       {clusteredPlants.map((cluster, clusterIndex) => {
         if (cluster.length === 1) {
-          // Single marker
           const plant = cluster[0]
           const lat = parseFloat(plant.latitude)
           const lng = parseFloat(plant.longitude)
@@ -102,7 +106,6 @@ export default function PowerPlantMarkers({ plants, onCountrySelect }) {
             </CircleMarker>
           )
         } else {
-          // Clustered markers
           const centerLat = cluster.reduce((sum, plant) => sum + parseFloat(plant.latitude), 0) / cluster.length
           const centerLng = cluster.reduce((sum, plant) => sum + parseFloat(plant.longitude), 0) / cluster.length
           const totalCapacity = cluster.reduce((sum, plant) => sum + (plant.capacity_mw || 0), 0)

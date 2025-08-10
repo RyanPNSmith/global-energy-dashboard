@@ -1,7 +1,6 @@
 const request = require('supertest');
 require('./helpers/setupTestEnv');
 
-// Mock DB so tests don't hit a real database
 jest.mock('../src/db', () => ({ query: jest.fn() }));
 const pool = require('../src/db');
 

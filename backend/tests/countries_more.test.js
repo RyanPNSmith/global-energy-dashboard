@@ -1,7 +1,6 @@
 const request = require('supertest');
 require('./helpers/setupTestEnv');
 
-// Mock DB
 jest.mock('../src/db', () => ({ query: jest.fn() }));
 const pool = require('../src/db');
 const app = require('../src/app');
@@ -12,12 +11,9 @@ describe('Countries by code and fuels', () => {
   });
 
   test('GET /api/countries/:country returns 200 with summary, fuels, recent', async () => {
-    // summary
     pool.query
       .mockResolvedValueOnce({ rows: [{ country: 'US', country_long: 'United States', total_plants: 1, total_capacity: 100, avg_capacity: 100, fuel_types: 1 }] })
-      // fuel breakdown
       .mockResolvedValueOnce({ rows: [{ primary_fuel: 'Coal', plant_count: 1, total_capacity: 100 }] })
-      // recent plants
       .mockResolvedValueOnce({ rows: [{ name: 'Plant A', capacity_mw: 100, primary_fuel: 'Coal', commissioning_year: 2019 }] });
 
     const res = await request(app)

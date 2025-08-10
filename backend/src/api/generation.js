@@ -2,7 +2,9 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../db');
 
-// Ensure overrides table exists (idempotent)
+/**
+ * Ensures the overrides table exists; safe to call repeatedly.
+ */
 async function ensureOverridesTable() {
   await pool.query(`
     CREATE SCHEMA IF NOT EXISTS gppd;

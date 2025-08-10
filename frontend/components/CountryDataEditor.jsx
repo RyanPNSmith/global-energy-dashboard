@@ -15,6 +15,10 @@ function Toast({ variant = 'default', title, description }) {
   )
 }
 
+/**
+ * Editor for a single country's capacity and generation overrides.
+ * Emits `country-data-updated` on success so dependent views can refresh.
+ */
 export default function CountryDataEditor() {
   const [refreshToken, setRefreshToken] = useState(0)
   const [toast, setToast] = useState(null)
@@ -27,12 +31,10 @@ export default function CountryDataEditor() {
   const [newYear, setNewYear] = useState('')
   const [newGeneration, setNewGeneration] = useState('')
 
-  // Prevent map selections from auto-populating editor
   useEffect(() => {
     function onExternalSelect(e) {
       const source = e.detail?.source
       if (source === 'map') {
-        // ignore map-originated selections
         return
       }
       const countries = e.detail?.countries || []
@@ -50,7 +52,6 @@ export default function CountryDataEditor() {
   const fetchCountryDetails = useCallback(async (countryName) => {
     setLoading(true)
     try {
-      // Generation (includes reported/estimated/effective)
       const genRes = await fetch(`/api/countries/${encodeURIComponent(countryName)}/generation`)
       if (!genRes.ok) throw new Error('Failed to fetch generation')
       const genJson = await genRes.json()
@@ -66,7 +67,6 @@ export default function CountryDataEditor() {
       }
       })
 
-      // Capacity
       const capRes = await fetch(`/api/countries/details?countryName=${encodeURIComponent(countryName)}`)
       if (!capRes.ok) throw new Error('Failed to fetch capacity')
       const capJson = await capRes.json()
@@ -140,7 +140,6 @@ export default function CountryDataEditor() {
       showToast({ title: 'No Country Selected', description: 'Please select a country to update.', variant: 'destructive' })
       return
     }
-    // Incorporate pending new year/value into a local map for validation and submission
     const genForSubmit = { ...generationData }
     deletedYears.forEach((year) => {
       genForSubmit[year] = null
@@ -151,7 +150,6 @@ export default function CountryDataEditor() {
       genForSubmit[newYear] = Number(newGeneration)
     }
 
-    // Client-side sanity check: generation cannot exceed theoretical max given capacity
     try {
       const capMw = capacityMw === '' ? undefined : Number(capacityMw)
       if (capMw && Number.isFinite(capMw) && capMw > 0) {

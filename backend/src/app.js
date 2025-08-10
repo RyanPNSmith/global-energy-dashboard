@@ -1,5 +1,5 @@
 const express = require('express');
-const powerPlantRoutes = require('./api/power_plants');
+const powerPlantRoutes = require('./api/power-plants');
 const countryRoutes = require('./api/countries');
 const generationRoutes = require('./api/generation');
 const globalRoutes = require('./api/global');

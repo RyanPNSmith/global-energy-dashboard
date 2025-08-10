@@ -37,6 +37,9 @@ const GlobalFuelPieChart = dynamic(() => import('@/components/GlobalFuelPieChart
   )
 })
 
+/**
+ * Main dashboard shell. Coordinates selections and renders data sections.
+ */
 export default function Dashboard() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [selectedCountries, setSelectedCountries] = useState([])
@@ -44,7 +47,6 @@ export default function Dashboard() {
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      {/* Sidebar */}
       <div className={`dashboard-sidebar hidden md:block ${sidebarCollapsed ? 'w-16' : 'w-64'} h-screen fixed left-0 top-0 z-30 transition-all duration-300`}>
         <div className="p-4 flex flex-col h-full">
           <div className="flex items-center justify-between mb-8">
@@ -101,7 +103,6 @@ export default function Dashboard() {
         </div>
       </div>
       
-      {/* Main content */}
       <div className={`transition-all duration-300 ml-0 ${sidebarCollapsed ? 'md:ml-16' : 'md:ml-64'} flex-1`}>
         <header className="dashboard-header sticky top-0 z-20">
           <div className="mx-auto max-w-[1600px] py-4 px-6">
@@ -142,7 +143,6 @@ export default function Dashboard() {
             </Card>
           </section>
 
-          {/* Trends and composition row */}
           <div id="analytics"></div>
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8">
             <Card className="dashboard-card xl:col-span-2">
@@ -188,7 +188,6 @@ export default function Dashboard() {
               <TopCountriesTable />
             </CardContent>
           </Card>
-          {/* Map moved to top as first section */}
           
           
 

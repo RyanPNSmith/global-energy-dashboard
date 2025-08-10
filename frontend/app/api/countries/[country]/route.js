@@ -1,5 +1,8 @@
 import { createHash } from 'crypto'
 
+/**
+ * Fetches summary stats for a single country code from backend.
+ */
 export async function GET(request, { params }) {
   try {
     const backendUrl = process.env.BACKEND_URL || 'http://localhost:3000'

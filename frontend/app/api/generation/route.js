@@ -1,5 +1,8 @@
 import { createHash } from 'crypto';
 
+/**
+ * Proxies multi-country generation time series requests to the backend.
+ */
 export async function GET(request) {
     try {
       const { searchParams } = new URL(request.url);

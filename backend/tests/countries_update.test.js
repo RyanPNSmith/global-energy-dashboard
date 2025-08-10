@@ -3,7 +3,6 @@ require('./helpers/setupTestEnv');
 
 const app = require('../src/app');
 
-// Mock DB queries invoked by update-data path
 jest.mock('../src/db', () => ({ query: jest.fn() }));
 const pool = require('../src/db');
 
@@ -21,12 +20,9 @@ describe('Countries update-data API', () => {
   });
 
   test('validates generation against capacity', async () => {
-    // ensureOverridesTable
     pool.query
       .mockResolvedValueOnce({})
-      // prefetch base capacity
       .mockResolvedValueOnce({ rows: [{ base_capacity: 1 }] })
-      // stored override
       .mockResolvedValueOnce({ rows: [] });
 
     const res = await request(app)
@@ -38,14 +34,10 @@ describe('Countries update-data API', () => {
   });
 
   test('upserts when inputs are valid', async () => {
-    // ensureOverridesTable
     pool.query
       .mockResolvedValueOnce({})
-      // prefetch base capacity
       .mockResolvedValueOnce({ rows: [{ base_capacity: 10 }] })
-      // stored override
       .mockResolvedValueOnce({ rows: [] })
-      // upsert
       .mockResolvedValueOnce({});
 
     const res = await request(app)

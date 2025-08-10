@@ -9,10 +9,8 @@ describe('Countries stats top', () => {
   beforeEach(() => jest.clearAllMocks());
 
   test('GET /api/countries/stats/top respects limit', async () => {
-    // ensureOverridesTable
     pool.query
       .mockResolvedValueOnce({})
-      // main query
       .mockResolvedValueOnce({ rows: [{ country: 'US', country_long: 'United States', plant_count: 1, total_capacity: 100, avg_capacity: 100 }], rowCount: 1 });
 
     const res = await request(app)

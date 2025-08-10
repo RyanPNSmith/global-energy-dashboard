@@ -38,7 +38,7 @@ This implementation adds an interactive map to the global energy dashboard that 
 ```
 frontend/
 ├── components/
-│   ├── PowerPlantMap.jsx          # Main map component
+│   ├── map/PowerPlantMap.jsx      # Main map component
 │   └── ui/
 │       ├── badge.jsx              # Badge component for popups
 │       └── card.jsx               # Card component for legend
@@ -110,7 +110,7 @@ The map is integrated into the main dashboard as a card component. It includes:
 The map component can be used independently or integrated into other parts of the application:
 
 ```javascript
-import PowerPlantMap from '../components/PowerPlantMap'
+import PowerPlantMap from '../components/map/PowerPlantMap'
 
 function MyComponent() {
   const [selectedCountries, setSelectedCountries] = useState([])

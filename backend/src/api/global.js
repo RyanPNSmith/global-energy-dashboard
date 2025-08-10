@@ -2,8 +2,10 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../db');
 
-// Route: GET /api/global/fuel-capacity
-// Returns total generating capacity grouped by primary fuel
+/**
+ * GET /api/global/fuel-capacity
+ * Returns total generating capacity grouped by primary fuel.
+ */
 router.get('/fuel-capacity', async (_req, res) => {
   try {
     const result = await pool.query(`

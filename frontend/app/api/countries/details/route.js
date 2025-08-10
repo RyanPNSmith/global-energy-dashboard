@@ -1,5 +1,8 @@
 import { createHash } from 'crypto'
 
+/**
+ * Returns country capacity details, honoring overrides when present.
+ */
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url)

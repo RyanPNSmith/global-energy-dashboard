@@ -8,7 +8,7 @@ This document outlines the optimized implementation of the global power plant ma
 ### Frontend Components
 
 #### 1. PowerPlantMap.jsx
-**Location**: `frontend/components/PowerPlantMap.jsx`
+**Location**: `frontend/components/map/PowerPlantMap.jsx`
 
 **Key Features**:
 - **Viewport-based rendering**: Only renders markers within the current map bounds
@@ -32,7 +32,7 @@ This document outlines the optimized implementation of the global power plant ma
 ### Backend API
 
 #### Power Plants Endpoint
-**Location**: `backend/src/api/power_plants.js`
+**Location**: `backend/src/api/power-plants.js`
 
 **Optimizations**:
 - **Selective field querying**: Only fetches necessary fields

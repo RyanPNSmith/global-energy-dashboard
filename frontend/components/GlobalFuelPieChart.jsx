@@ -1,12 +1,12 @@
 "use client"
 
 import { useState, useEffect } from 'react'
+import { fuelColors as sharedFuelColors } from '@/lib/map'
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js'
 import { Pie } from 'react-chartjs-2'
 
 ChartJS.register(ArcElement, Tooltip, Legend)
 
-// Plugin to render percentage labels on slices larger than 5%
 const sliceLabelPlugin = {
   id: 'sliceLabel',
   afterDatasetsDraw(chart) {
@@ -33,22 +33,8 @@ const sliceLabelPlugin = {
 
 ChartJS.register(sliceLabelPlugin)
 
-// Define fuel type colors
-const fuelColors = {
-  Coal: '#3d4a5d',
-  Gas: '#4d5b70',
-  Oil: '#5d6b80',
-  Hydro: '#6495ED',
-  Nuclear: '#9370DB',
-  Wind: '#20B2AA',
-  Solar: '#FFD700',
-  Biomass: '#228B22',
-  Geothermal: '#FF4500',
-  Waste: '#A52A2A',
-  Other: '#808080'
-}
+const fuelColors = sharedFuelColors
 
-// Explicit list of major fuels we want to show as separate slices
 const MAJOR_FUELS = [
   'Coal',
   'Gas',
@@ -73,7 +59,6 @@ export default function GlobalFuelPieChart({ selectedCountries = [] }) {
         setLoading(true)
         let res
         if (Array.isArray(selectedCountries) && selectedCountries.length === 1) {
-          // map country_long -> country code via /api/countries
           const listRes = await fetch('/api/countries', { cache: 'no-store' })
           if (!listRes.ok) throw new Error('Failed to load country list')
           const listJson = await listRes.json()
@@ -90,11 +75,9 @@ export default function GlobalFuelPieChart({ selectedCountries = [] }) {
         }
         const json = await res.json()
         let data = json.data || json
-        // Normalize to common shape { fuel, capacity_mw }
         if (Array.isArray(data) && data.length > 0 && data[0].primary_fuel) {
           data = data.map(d => ({ fuel: d.primary_fuel, capacity_mw: Number(d.total_capacity || d.capacity_mw || 0) }))
         }
-        // Group non-major fuels into "Other" and sum capacities
         const grouped = data.reduce((acc, raw) => {
           const rawFuel = raw.fuel || raw.primary_fuel
           const normalizedFuel = MAJOR_FUELS.includes(rawFuel) ? rawFuel : 'Other'
