@@ -15,6 +15,7 @@ const PowerPlantMap = dynamic(() => import('@/components/map/PowerPlantMap'), {
   )
 })
 import TopCountriesTable from '@/components/TopCountriesTable'
+import KpiStats from '@/components/KpiStats'
 const CountryGenerationChart = dynamic(() => import('@/components/CountryGenerationChart'), {
   ssr: false,
   loading: () => (
@@ -117,20 +118,25 @@ export default function Dashboard() {
         
         <main className="mx-auto max-w-[1600px] py-8 px-6">
           <div className="mb-8">
-            <h2 className="text-xl font-semibold text-[#3d4a5d] mb-2">Dashboard Overview</h2>
-            <p className="text-gray-600">Welcome to your dashboard</p>
+            <div className="flex flex-col gap-2">
+              <h2 className="text-2xl font-semibold text-[#3d4a5d]">Dashboard Overview</h2>
+              <p className="text-gray-600">Welcome to your dashboard</p>
+            </div>
+            <div className="mt-6">
+              <KpiStats selectedCountries={selectedCountries} />
+            </div>
           </div>
           <section id="overview" className="mb-8">
             <Card className="dashboard-card">
-              <CardHeader className="bg-[#3d4a5d]/5 border-b">
-                <CardTitle className="text-[#3d4a5d]">Global Energy Map</CardTitle>
-                <CardDescription>
-                  Interactive map showing power plants worldwide by fuel type and capacity
-                </CardDescription>
+              <CardHeader className="bg-[#3e5e8d] text-white border-b">
+                <CardTitle className="text-white">Global Energy Map</CardTitle>
+              <CardDescription className="text-white/80">
+                Interactive map showing power plants worldwide by fuel type and capacity
+              </CardDescription>
               </CardHeader>
               <CardContent className="p-0">
-                <div className="h-[65vh] min-h-[480px] lg:h-[75vh]">
-                  <PowerPlantMap />
+                <div className="h-[68vh] min-h-[520px] lg:h-[78vh]">
+                  <PowerPlantMap onCountrySelect={setSelectedCountries} />
                 </div>
               </CardContent>
             </Card>
@@ -140,9 +146,9 @@ export default function Dashboard() {
           <div id="analytics"></div>
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8">
             <Card className="dashboard-card xl:col-span-2">
-              <CardHeader className="bg-[#3d4a5d]/5 border-b">
-                <CardTitle className="text-[#3d4a5d]">Country Electricity Generation</CardTitle>
-                <CardDescription>
+              <CardHeader className="bg-[#3e5e8d] text-white border-b">
+                <CardTitle className="text-white">Country Electricity Generation</CardTitle>
+                <CardDescription className="text-white/80">
                   Annual generation for up to 5 selected countries (2013-2019)
                 </CardDescription>
               </CardHeader>
@@ -155,14 +161,14 @@ export default function Dashboard() {
             </Card>
 
             <Card className="dashboard-card">
-              <CardHeader className="bg-[#3d4a5d]/5 border-b">
-                <CardTitle className="text-[#3d4a5d]">Global Primary Fuel Share</CardTitle>
-                <CardDescription>
+              <CardHeader className="bg-[#3e5e8d] text-white border-b">
+                <CardTitle className="text-white">Global Primary Fuel Share</CardTitle>
+                <CardDescription className="text-white/80">
                   Share of global generating capacity by primary fuel
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <GlobalFuelPieChart />
+                 <GlobalFuelPieChart selectedCountries={selectedCountries} />
               </CardContent>
             </Card>
           </div>
@@ -172,9 +178,9 @@ export default function Dashboard() {
 
 
           <Card id="top25" className="dashboard-card mb-6 max-w-4xl mx-auto w-full">
-            <CardHeader className="bg-[#3d4a5d]/5 border-b">
-              <CardTitle className="text-[#3d4a5d]">Top Countries by Generating Capacity</CardTitle>
-              <CardDescription>
+            <CardHeader className="bg-[#3e5e8d] text-white border-b">
+              <CardTitle className="text-white">Top Countries by Generating Capacity</CardTitle>
+              <CardDescription className="text-white/80">
                 Top 25 countries ranked by total installed capacity
               </CardDescription>
             </CardHeader>
@@ -187,9 +193,9 @@ export default function Dashboard() {
           
 
           <Card id="editor" className="dashboard-card mb-6">
-            <CardHeader className="bg-[#3d4a5d]/5 border-b">
-              <CardTitle className="text-[#3d4a5d]">Country Data Editor</CardTitle>
-              <CardDescription>
+            <CardHeader className="bg-[#3e5e8d] text-white border-b">
+              <CardTitle className="text-white">Country Data Editor</CardTitle>
+              <CardDescription className="text-white/80">
                 Edit capacity and annual generation overrides for a single country
               </CardDescription>
             </CardHeader>

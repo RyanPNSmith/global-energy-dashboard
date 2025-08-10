@@ -93,7 +93,7 @@ export default function PowerPlantMarkers({ plants, onCountrySelect }) {
                   )}
                   <Badge
                     className="mt-2 cursor-pointer bg-[#3d4a5d] hover:bg-[#4d5b70]"
-                    onClick={() => onCountrySelect && onCountrySelect([plant.country_long || plant.country])}
+                    onClick={() => onCountrySelect && onCountrySelect([plant.country_long || plant.country], { source: 'map' })}
                   >
                     View Country Data
                   </Badge>

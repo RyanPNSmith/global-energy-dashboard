@@ -168,7 +168,7 @@ export default function CountryGenerationChart({ countries }) {
   }
   
   return (
-    <div className="w-full" style={{ height: 400 }}>
+    <div className="w-full" style={{ height: 460 }}>
       <Line
         data={chartData}
         options={{
