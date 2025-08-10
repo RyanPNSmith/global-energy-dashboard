@@ -1,7 +1,6 @@
 const request = require('supertest');
 require('./helpers/setupTestEnv');
 
-// Mock DB pool used by route handlers
 jest.mock('../src/db', () => ({ query: jest.fn() }));
 
 const pool = require('../src/db');
@@ -33,7 +32,6 @@ describe('Countries API', () => {
   });
 
   test('GET /api/countries/:country/generation uses overrides when present', async () => {
-    // Base generation query
     pool.query
       .mockResolvedValueOnce({
         rows: [
@@ -41,9 +39,7 @@ describe('Countries API', () => {
           { year: 2019, reported_generation_gwh: null, estimated_generation_gwh: null },
         ],
       })
-      // ensureOverridesTable DDL
       .mockResolvedValueOnce({})
-      // overrides selection
       .mockResolvedValueOnce({ rows: [{ generation_overrides: { '2019': 12, '2020': 5 } }] });
 
     const res = await request(app)

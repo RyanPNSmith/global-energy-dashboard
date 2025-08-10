@@ -4,11 +4,13 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { X, ChevronDown, Globe } from "lucide-react";
 
 /**
- * Enhanced CountrySelector component
- * Props:
- *  - selected: array of currently selected country names (country_long)
- *  - onChange: function(newSelectedArray)
- *  - max: maximum number of countries that can be selected (default 5)
+ * Country multi-select with search and external selection sync.
+ *
+ * @param {{
+ *  selected?: string[],
+ *  onChange: (next: string[]) => void,
+ *  max?: number
+ * }} props - `selected` are display names (country_long); `max` caps the selection size (default 5).
  */
 export default function CountrySelector({ selected = [], onChange, max = 5 }) {
   const [options, setOptions] = useState([]);
@@ -41,7 +43,6 @@ export default function CountrySelector({ selected = [], onChange, max = 5 }) {
     fetchCountries();
   }, []);
 
-  // Listen to external selects (e.g., map 'View Country Data')
   useEffect(() => {
     function onExternalSelect(e) {
       const countries = e.detail?.countries || [];
@@ -53,7 +54,6 @@ export default function CountrySelector({ selected = [], onChange, max = 5 }) {
     return () => window.removeEventListener('country-selected', onExternalSelect);
   }, [selected, onChange, max]);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -116,7 +116,6 @@ export default function CountrySelector({ selected = [], onChange, max = 5 }) {
 
   return (
     <div className="relative" ref={dropdownRef}>
-      {/* Selected Countries Display */}
       <div className="flex flex-wrap gap-2 mb-3">
         {selected.map((country, index) => (
           <div
@@ -134,8 +133,6 @@ export default function CountrySelector({ selected = [], onChange, max = 5 }) {
           </div>
         ))}
       </div>
-
-      {/* Dropdown Trigger */}
       <div className="relative">
         <button
           onClick={() => setIsOpen(!isOpen)}
@@ -164,11 +161,8 @@ export default function CountrySelector({ selected = [], onChange, max = 5 }) {
             }`} 
           />
         </button>
-
-        {/* Dropdown Menu */}
         {isOpen && (
           <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-xl z-50 max-h-60 overflow-hidden">
-            {/* Search Input */}
             <div className="p-3 border-b border-gray-100">
               <input
                 type="text"
@@ -179,8 +173,6 @@ export default function CountrySelector({ selected = [], onChange, max = 5 }) {
                 autoFocus
               />
             </div>
-
-            {/* Options List */}
             <div className="max-h-48 overflow-y-auto">
               {filteredOptions.length === 0 ? (
                 <div className="p-4 text-center text-sm text-gray-500">
@@ -198,8 +190,6 @@ export default function CountrySelector({ selected = [], onChange, max = 5 }) {
                 ))
               )}
             </div>
-
-            {/* Footer */}
             <div className="p-3 border-t border-gray-100 bg-gray-50">
               <div className="flex items-center justify-between text-xs text-gray-500">
                 <span>{filteredOptions.length} countries available</span>

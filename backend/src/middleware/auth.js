@@ -6,6 +6,14 @@ if (!API_KEY) {
   throw new Error('API_KEY environment variable is not set');
 }
 
+/**
+ * Express middleware that validates an API key via constant-time comparison.
+ * Accepts either `x-api-key: <key>` or `Authorization: Bearer <key>`.
+ *
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ * @param {import('express').NextFunction} next
+ */
 const validateApiKey = (req, res, next) => {
   const apiKey = req.headers['x-api-key'] || req.headers['authorization'];
   

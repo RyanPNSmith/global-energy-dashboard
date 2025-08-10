@@ -4,6 +4,11 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Loader2, Plus, X } from 'lucide-react'
 import CountrySelector from '@/components/CountrySelector'
 
+/**
+ * Minimal toast for inline success/error notifications.
+ *
+ * @param {{ variant?: 'default' | 'destructive', title?: string, description?: string }} props
+ */
 function Toast({ variant = 'default', title, description }) {
   if (!title && !description) return null
   const color = variant === 'destructive' ? 'text-red-700 bg-red-50 border-red-200' : 'text-green-700 bg-green-50 border-green-200'
@@ -15,6 +20,10 @@ function Toast({ variant = 'default', title, description }) {
   )
 }
 
+/**
+ * Editor for a single country's capacity and generation overrides.
+ * Emits `country-data-updated` on success so dependent views can refresh.
+ */
 export default function CountryDataEditor() {
   const [refreshToken, setRefreshToken] = useState(0)
   const [toast, setToast] = useState(null)
@@ -27,12 +36,10 @@ export default function CountryDataEditor() {
   const [newYear, setNewYear] = useState('')
   const [newGeneration, setNewGeneration] = useState('')
 
-  // Prevent map selections from auto-populating editor
   useEffect(() => {
     function onExternalSelect(e) {
       const source = e.detail?.source
       if (source === 'map') {
-        // ignore map-originated selections
         return
       }
       const countries = e.detail?.countries || []
@@ -47,10 +54,13 @@ export default function CountryDataEditor() {
     setTimeout(() => setToast(null), 3500)
   }, [])
 
+  /**
+   * Fetch capacity and generation details for a display name (country_long).
+   * @param {string} countryName
+   */
   const fetchCountryDetails = useCallback(async (countryName) => {
     setLoading(true)
     try {
-      // Generation (includes reported/estimated/effective)
       const genRes = await fetch(`/api/countries/${encodeURIComponent(countryName)}/generation`)
       if (!genRes.ok) throw new Error('Failed to fetch generation')
       const genJson = await genRes.json()
@@ -66,7 +76,6 @@ export default function CountryDataEditor() {
       }
       })
 
-      // Capacity
       const capRes = await fetch(`/api/countries/details?countryName=${encodeURIComponent(countryName)}`)
       if (!capRes.ok) throw new Error('Failed to fetch capacity')
       const capJson = await capRes.json()
@@ -140,7 +149,6 @@ export default function CountryDataEditor() {
       showToast({ title: 'No Country Selected', description: 'Please select a country to update.', variant: 'destructive' })
       return
     }
-    // Incorporate pending new year/value into a local map for validation and submission
     const genForSubmit = { ...generationData }
     deletedYears.forEach((year) => {
       genForSubmit[year] = null
@@ -151,7 +159,6 @@ export default function CountryDataEditor() {
       genForSubmit[newYear] = Number(newGeneration)
     }
 
-    // Client-side sanity check: generation cannot exceed theoretical max given capacity
     try {
       const capMw = capacityMw === '' ? undefined : Number(capacityMw)
       if (capMw && Number.isFinite(capMw) && capMw > 0) {

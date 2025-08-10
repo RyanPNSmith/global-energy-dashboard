@@ -1,3 +1,7 @@
+/**
+ * Bulk import for GPPD CSV using PostgreSQL COPY via streaming.
+ * Truncates the target table first to guarantee a clean load.
+ */
 const fs = require('fs');
 const path = require('path');
 const { Pool } = require('pg');
@@ -14,6 +18,9 @@ const pool = new Pool({
 
 const csvFilePath = path.resolve(__dirname, '..', 'seeds', 'global_power_plant_database_clean.csv');
 
+/**
+ * Streams the CSV into `gppd.power_plants` via COPY FROM STDIN using pg-copy-streams.
+ */
 async function importData() {
   const client = await pool.connect();
   try {

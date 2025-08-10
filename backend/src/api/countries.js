@@ -2,7 +2,10 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../db');
 
-// Ensure overrides table exists (idempotent)
+/**
+ * Ensures the overrides table exists; safe to call repeatedly.
+ * Creates schema `gppd` if missing.
+ */
 async function ensureOverridesTable() {
   await pool.query(`
     CREATE SCHEMA IF NOT EXISTS gppd;
@@ -19,10 +22,8 @@ router.get('/stats/top', async (req, res) => {
   try {
     const { limit = 10 } = req.query;
 
-    // Ensure overrides table exists so LEFT JOIN works even if empty
     await ensureOverridesTable();
 
-    // Compute base aggregates per country from plants, then merge capacity overrides
     const result = await pool.query(
       `
       WITH base AS (

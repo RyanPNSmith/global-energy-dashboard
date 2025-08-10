@@ -1,5 +1,9 @@
 import { createHash } from 'crypto'
 
+/**
+ * Fetches annual generation for a single country name (country_long),
+ * including reported, estimated, and effective values.
+ */
 export async function GET(request, { params }) {
   try {
     const backendUrl = process.env.BACKEND_URL || 'http://localhost:3000'

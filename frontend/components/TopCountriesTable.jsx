@@ -2,6 +2,10 @@
 
 import { useEffect, useState, useMemo } from 'react'
 
+/**
+ * Sortable table of top countries by total generating capacity.
+ * Data is refreshed on `country-data-updated` events.
+ */
 export default function TopCountriesTable() {
   const [countries, setCountries] = useState([])
   const [loading, setLoading] = useState(true)
@@ -33,7 +37,6 @@ export default function TopCountriesTable() {
 
     fetchCountries()
 
-    // Listen for edits to force refresh
     const onUpdated = () => fetchCountries()
     window.addEventListener('country-data-updated', onUpdated)
     return () => window.removeEventListener('country-data-updated', onUpdated)

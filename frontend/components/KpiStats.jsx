@@ -4,6 +4,11 @@ import { useEffect, useMemo, useState } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Zap, BarChart3, Factory } from 'lucide-react'
 
+/**
+ * Displays high-level KPIs for either global or single-country mode.
+ *
+ * @param {{ selectedCountries?: string[] }} props - Selected display names (country_long). If length is 1, shows country mode.
+ */
 export default function KpiStats({ selectedCountries = [] }) {
   const [top, setTop] = useState(null)
   const [fuels, setFuels] = useState(null)

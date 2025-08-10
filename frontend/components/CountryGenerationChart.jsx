@@ -16,6 +16,11 @@ import { Line } from 'react-chartjs-2';
 ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement, Legend, Tooltip, Title);
 
 
+/**
+ * Renders a multi-series line chart of annual electricity generation for up to 5 countries.
+ *
+ * @param {{ countries: string[] }} props - Display names (country_long) of up to five countries.
+ */
 export default function CountryGenerationChart({ countries }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -34,8 +39,6 @@ export default function CountryGenerationChart({ countries }) {
     const params = new URLSearchParams();
     params.append('countries', countries.join(','));
     
-    console.log('Fetching generation data for countries:', countries);
-    
     fetch(`/api/generation?${params.toString()}`, { cache: 'no-store' })
       .then(res => {
         if (!res.ok) {
@@ -44,11 +47,9 @@ export default function CountryGenerationChart({ countries }) {
         return res.json();
       })
       .then(responseData => {
-        console.log('Received generation data:', responseData);
         setData(responseData);
       })
       .catch(err => {
-        console.error('Failed to load generation data', err);
         setError(err.message);
         setData(null);
       })

@@ -1,7 +1,6 @@
--- Schema for storing global power plant data
 -- Source columns derived from database/seeds/global_power_plant_database.csv
 
-CREATE TABLE IF NOT EXISTS power_plants (
+CREATE TABLE IF NOT EXISTS gppd.power_plants (
     gppd_idnr                TEXT PRIMARY KEY,
     country                  CHAR(3) NOT NULL,
     country_long             TEXT,
@@ -42,14 +41,15 @@ CREATE TABLE IF NOT EXISTS power_plants (
 );
 
 -- Indexes to speed up common queries (matching live DB naming)
-CREATE INDEX IF NOT EXISTS idx_power_plants_country ON power_plants (country);
-CREATE INDEX IF NOT EXISTS idx_power_plants_primary_fuel ON power_plants (primary_fuel);
-CREATE INDEX IF NOT EXISTS idx_power_plants_lat_lon ON power_plants (latitude, longitude);
-CREATE INDEX IF NOT EXISTS idx_power_plants_capacity ON power_plants (capacity_mw);
+CREATE INDEX IF NOT EXISTS idx_power_plants_country ON gppd.power_plants (country);
+CREATE INDEX IF NOT EXISTS idx_power_plants_country_long ON gppd.power_plants (country_long);
+CREATE INDEX IF NOT EXISTS idx_power_plants_primary_fuel ON gppd.power_plants (primary_fuel);
+CREATE INDEX IF NOT EXISTS idx_power_plants_lat_lon ON gppd.power_plants (latitude, longitude);
+CREATE INDEX IF NOT EXISTS idx_power_plants_capacity ON gppd.power_plants (capacity_mw);
 
 -- Optional: Index for time series queries (multiple generation year columns)
 CREATE INDEX IF NOT EXISTS idx_power_plants_generation_years
-    ON power_plants (
+    ON gppd.power_plants (
         generation_gwh_2013,
         generation_gwh_2014,
         generation_gwh_2015,

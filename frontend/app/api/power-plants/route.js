@@ -1,5 +1,9 @@
 import { createHash } from 'crypto';
 
+/**
+ * Proxies power-plant queries to the backend and returns the full payload
+ * (including metadata like total/count) for the frontend to consume.
+ */
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url)
@@ -9,7 +13,6 @@ export async function GET(request) {
     const offset = searchParams.get('offset') || '0'
     const bounds = searchParams.get('bounds')
 
-    // Build query string
     const queryParams = new URLSearchParams()
     if (country) queryParams.append('country', country)
     if (fuel) queryParams.append('fuel', fuel)
@@ -35,13 +38,11 @@ export async function GET(request) {
 
     const data = await response.json()
     const etag = createHash('sha1').update(JSON.stringify(data)).digest('hex');
-    
 
-    // Return the FULL backend payload so frontend can access metadata like total/count
     return Response.json(data, {
       headers: {
-        'Cache-Control': 'public, max-age=300, s-maxage=600', // Cache for 5 minutes client, 10 minutes CDN
-        'ETag': `"${etag}"`, // Simple ETag for caching
+        'Cache-Control': 'public, max-age=300, s-maxage=600',
+        'ETag': `"${etag}"`,
       }
     })
 

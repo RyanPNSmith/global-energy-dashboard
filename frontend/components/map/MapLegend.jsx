@@ -3,6 +3,9 @@
 import { Card } from '@/components/ui/card'
 import { fuelColors } from '@/lib/map'
 
+/**
+ * Static legend for marker color meanings.
+ */
 export default function MapLegend() {
   return (
     <Card className="absolute bottom-5 right-5 z-[1000] p-3 bg-white bg-opacity-95 shadow-lg">

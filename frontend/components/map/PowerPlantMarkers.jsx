@@ -5,61 +5,48 @@ import { CircleMarker, Popup } from 'react-leaflet'
 import { Badge } from '@/components/ui/badge'
 import { getFuelColor, getMarkerRadius } from '@/lib/map'
 
-// Simple clustering function
-function clusterMarkers(plants, maxDistance = 0.5) {
-  const clusters = []
-  const used = new Set()
-
-  for (let i = 0; i < plants.length; i++) {
-    if (used.has(i)) continue
-
-    const cluster = [plants[i]]
-    used.add(i)
-
-    for (let j = i + 1; j < plants.length; j++) {
-      if (used.has(j)) continue
-
-      const plant1 = plants[i]
-      const plant2 = plants[j]
-
-      const lat1 = parseFloat(plant1.latitude)
-      const lng1 = parseFloat(plant1.longitude)
-      const lat2 = parseFloat(plant2.latitude)
-      const lng2 = parseFloat(plant2.longitude)
-
-      // Calculate distance
-      const distance = Math.sqrt(
-        Math.pow(lat1 - lat2, 2) + Math.pow(lng1 - lng2, 2)
-      )
-
-      if (distance < maxDistance) {
-        cluster.push(plant2)
-        used.add(j)
-      }
-    }
-
-    clusters.push(cluster)
+/**
+ * Grid-based clustering in O(n). Bins points into a fixed-size grid and groups by cell.
+ *
+ * @param {Array<object>} plants - Flat list of power plant objects containing numeric `latitude` and `longitude`.
+ * @param {number} [cellSizeDeg=0.3] - Grid cell size in degrees used for binning markers.
+ * @returns {Array<Array<object>>} Array of clusters, where each cluster is an array of plants.
+ */
+function gridClusterMarkers(plants, cellSizeDeg = 0.3) {
+  const cellKey = (lat, lng) => `${Math.floor(lat / cellSizeDeg)},${Math.floor(lng / cellSizeDeg)}`
+  const grid = new Map()
+  for (const plant of plants) {
+    const lat = parseFloat(plant.latitude)
+    const lng = parseFloat(plant.longitude)
+    if (Number.isNaN(lat) || Number.isNaN(lng)) continue
+    const key = cellKey(lat, lng)
+    if (!grid.has(key)) grid.set(key, [])
+    grid.get(key).push(plant)
   }
-
-  return clusters
+  return Array.from(grid.values())
 }
 
 export default function PowerPlantMarkers({ plants, onCountrySelect }) {
-  // Cluster markers for better performance
+  /**
+   * Renders power plant markers or cluster markers based on input size.
+   *
+   * @param {{
+   *   plants: Array<object>,
+   *   onCountrySelect?: (countries: string[], opts?: { source?: string }) => void
+   * }} props
+   */
+  // Render clusters or individual markers; heavy work is memoized in parent
   const clusteredPlants = useMemo(() => {
     if (plants.length <= 1000) {
-      // For smaller datasets, don't cluster
       return plants.map(plant => [plant])
     }
-    
-    return clusterMarkers(plants, 0.3) // Adjust clustering distance as needed
+    return gridClusterMarkers(plants, 0.3)
   }, [plants])
 
   return (
     <>
       {clusteredPlants.map((cluster, clusterIndex) => {
         if (cluster.length === 1) {
-          // Single marker
           const plant = cluster[0]
           const lat = parseFloat(plant.latitude)
           const lng = parseFloat(plant.longitude)
@@ -102,7 +89,6 @@ export default function PowerPlantMarkers({ plants, onCountrySelect }) {
             </CircleMarker>
           )
         } else {
-          // Clustered markers
           const centerLat = cluster.reduce((sum, plant) => sum + parseFloat(plant.latitude), 0) / cluster.length
           const centerLng = cluster.reduce((sum, plant) => sum + parseFloat(plant.longitude), 0) / cluster.length
           const totalCapacity = cluster.reduce((sum, plant) => sum + (plant.capacity_mw || 0), 0)

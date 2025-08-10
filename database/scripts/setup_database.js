@@ -12,9 +12,13 @@ const dbConfig = {
   port: Number(process.env.DB_PORT) || 5432,
 };
 
+/**
+ * Creates the database if missing, then creates schema and tables for GPPD.
+ */
 async function setupDatabase() {
   try {
     console.log(`Checking if database ${dbConfig.database} exists...`);
+    // Use psql to list databases and grep for the target name; exits non-zero if not found
     execSync(`psql -U ${dbConfig.user} -h ${dbConfig.host} -p ${dbConfig.port} -lqt | cut -d \\| -f 1 | grep -qw ${dbConfig.database}`, {
       env: { ...process.env, PGPASSWORD: dbConfig.password },
       stdio: 'pipe',
@@ -23,6 +27,7 @@ async function setupDatabase() {
   } catch (error) {
     console.log(`Database ${dbConfig.database} does not exist. Creating...`);
     try {
+      // Create the database owned by the configured user
       execSync(`createdb -U ${dbConfig.user} -h ${dbConfig.host} -p ${dbConfig.port} -O ${dbConfig.user} ${dbConfig.database}`, {
         env: { ...process.env, PGPASSWORD: dbConfig.password },
         stdio: 'inherit',
@@ -36,7 +41,6 @@ async function setupDatabase() {
 
   const pool = new Pool({
     ...dbConfig,
-    options: `project=gppd&search_path=gppd`,
   });
 
   const client = await pool.connect();

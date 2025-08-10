@@ -2,6 +2,16 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../db');
 
+/**
+ * GET /api/power-plants
+ * Query params:
+ * - country: optional ISO-3 code filter (e.g. "USA")
+ * - fuel: optional primary fuel filter (e.g. "Coal")
+ * - limit, offset: pagination controls
+ * - bounds: optional viewport in order west,south,east,north (lon/lat). If west > east, the
+ *           query crosses the antimeridian and longitude filter becomes an OR condition.
+ */
+
 router.get('/', async (req, res) => {
   try {
     const { country, fuel, limit = 2000, offset = 0, bounds } = req.query;
@@ -17,7 +27,6 @@ router.get('/', async (req, res) => {
       AND longitude BETWEEN -180 AND 180
     `;
 
-    // Bounds filtering without requiring PostGIS
     if (bounds) {
       const [west, south, east, north] = bounds.split(',').map(Number);
       if (
@@ -26,14 +35,14 @@ router.get('/', async (req, res) => {
         Number.isFinite(east) &&
         Number.isFinite(north)
       ) {
-        // Handle normal case where bbox does not cross the antimeridian
+        // Normal case: single longitudinal window
         if (west <= east) {
           whereClauses += ` AND latitude >= $${paramCount + 1} AND latitude <= $${paramCount + 2}`;
           whereClauses += ` AND longitude >= $${paramCount + 3} AND longitude <= $${paramCount + 4}`;
           params.push(south, north, west, east);
           paramCount += 4;
         } else {
-          // If bbox crosses antimeridian, longitudes satisfy lon >= west OR lon <= east
+          // Antimeridian wrap: two windows joined by OR on longitude
           whereClauses += ` AND latitude >= $${paramCount + 1} AND latitude <= $${paramCount + 2}`;
           whereClauses += ` AND (longitude >= $${paramCount + 3} OR longitude <= $${paramCount + 4})`;
           params.push(south, north, west, east);
@@ -71,6 +80,7 @@ router.get('/', async (req, res) => {
     `;
     params.push(parseInt(limit), parseInt(offset));
     
+    // Return rounded values for stable marker rendering and predictable payload size
     const result = await pool.query(dataQuery, params);
     
     res.json({
@@ -91,3 +101,5 @@ router.get('/', async (req, res) => {
 });
 
 module.exports = router; 
+
+

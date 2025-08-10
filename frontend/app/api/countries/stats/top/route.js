@@ -1,5 +1,8 @@
 import { createHash } from 'crypto';
 
+/**
+ * Fetches top countries ranked by total capacity from backend.
+ */
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url)

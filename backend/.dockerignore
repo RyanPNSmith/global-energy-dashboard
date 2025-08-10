@@ -1,5 +1,14 @@
 node_modules
 npm-debug.log
+.git
+.gitignore
+tests
+.env*
+Dockerfile
+README.md
+jest.config.js
+node_modules
+npm-debug.log
 yarn-error.log
 pnpm-debug.log
 .git

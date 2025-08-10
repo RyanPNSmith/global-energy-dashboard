@@ -1,5 +1,8 @@
 import { createHash } from 'crypto';
 
+/**
+ * Returns total global capacity by primary fuel from backend.
+ */
 export async function GET(request) {
   try {
     const backendUrl = process.env.BACKEND_URL || 'http://localhost:3000'
