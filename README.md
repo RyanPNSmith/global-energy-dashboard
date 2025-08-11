@@ -21,26 +21,7 @@ A full‑stack web application that visualizes worldwide electricity generation 
 - Country-level overrides editor (capacity and annual generation)
 - Robust API with API-key protection
 - Docker-based deployment option
-
----
-
-## Repository Structure
-
-global-energy-dashboard/
-├── backend/ # Express API (requires API key)
-├── frontend/ # Next.js dashboard (proxies to backend)
-├── database/
-│ ├── schema/power_plants.sql
-│ ├── seeds/global_power_plant_database_clean.csv
-│ └── scripts/
-│ ├── setup_database.js # Create DB + schema/table
-│ └── import_power_plants.js # COPY CSV into gppd.power_plants
-├── docker-compose.yml
-├── LICENSE
-└── README.md
-
----
-
+  
 ## Quick Start
 
 ### Option A: Docker (recommended)
@@ -167,30 +148,6 @@ Backend tests (Jest):
 cd backend
 npm test
 ```
-
----
-
-## Roadmap
-
-Track work in Notion: [Insert Notion link]
-
-- Data quality: add validation and anomaly flags
-- Expand generation years, add normalization per capita
-- Caching strategy and ETag validation across routes
-- CI pipeline and container image publishing
-
----
-
-## Documentation
-
-Central docs folder: [Insert Google Drive link]
-
-Suggested docs:
-- System architecture and sequence flows
-- Data model and schema decisions
-- API contract and examples
-- Operations (backup/restore, data refresh)
-
 ---
 
 ## Attribution
