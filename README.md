@@ -8,8 +8,8 @@ A full‑stack web application that visualizes worldwide electricity generation 
 
 ### Links
 
-- Notion Board: [Insert Notion link]
-- Documentation (Google Drive): [Insert Google Drive link]
+- Notion Board: https://www.notion.so/245a6a2d651b80ee9681dde42e0e8efa?v=245a6a2d651b80ad87f4000c8f5218e4&source=copy_link
+- Documentation (Google Drive): https://drive.google.com/drive/folders/1T6Hpops0zIDd23j3LneVjEXvUtvfEx2x?usp=sharing
 
 ---
 
